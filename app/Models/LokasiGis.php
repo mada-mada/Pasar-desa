@@ -12,6 +12,7 @@ class LokasiGis extends Model
     protected $table = 'lokasi_gis';
 
     protected $fillable = [
+        'id',
         'id_pasar',
         'latitude',
         'longitude',

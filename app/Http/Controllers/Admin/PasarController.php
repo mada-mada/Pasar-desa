@@ -28,8 +28,10 @@ class PasarController extends Controller
   
     public function create()
     {
-        
-        return view('admin.pasar.create');
+        $pasarExisting = PasarDesa::whereHas('lokasiGis')
+                                  ->with('lokasiGis')
+                                  ->get();
+        return view('admin.pasar.create', compact('pasarExisting'));
     }
 
     
@@ -72,7 +74,7 @@ class PasarController extends Controller
             // B. Simpan data Koordinat Map ke tabel lokasi_gis
             // Catatan: Sesuaikan 'pasar_desa_id' dengan nama foreign key di tabel lokasi_gis Anda
             LokasiGis::create([
-                'pasar_desa_id' => $pasar->id, 
+                'id_pasar' => $pasar->id, 
                 'latitude' => $validated['latitude'],
                 'longitude' => $validated['longitude'],
             ]);
@@ -152,9 +154,9 @@ class PasarController extends Controller
             $pasar->update($pasarData);
 
             // B. Update atau Create Lokasi GIS
-            // Sesuaikan 'pasar_desa_id' dengan foreign key di database Anda
+            // Sesuaikan 'id_pasar' dengan foreign key di database Anda
             LokasiGis::updateOrCreate(
-                ['pasar_desa_id' => $pasar->id], // Cari berdasarkan ID Pasar
+                ['id_pasar' => $pasar->id], // Cari berdasarkan ID Pasar
                 [
                     'latitude' => $validated['latitude'],
                     'longitude' => $validated['longitude']

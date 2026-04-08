@@ -12,6 +12,7 @@ class PasarDesa extends Model
     protected $table = 'pasar_desa';
 
     protected $fillable = [
+        'id',
         'nama_pasar',
         'alamat_lengkap',
         'deskripsi',

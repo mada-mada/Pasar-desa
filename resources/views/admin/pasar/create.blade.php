@@ -1,4 +1,10 @@
+<x-form-pasar>
 
+@section('styles')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    @endsection
+@section('content')
 <div class="container mt-4">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
@@ -85,51 +91,100 @@
         </div>
     </div>
 </div>
-
+@endsection
 
 @section('scripts')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
-<script>
+    <script>
     document.addEventListener("DOMContentLoaded", function() {
         // 1. Inisialisasi Peta
-        // Set view default ke Kabupaten Indramayu (Koordinat pusat Indramayu)
         var map = L.map('map').setView([-6.3275, 108.3249], 11);
 
-        // Tambahkan Tile Layer (Tampilan Jalan OpenStreetMap)
+        // 2. Tambahkan Tile Layer (Peta Dasar)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var marker = null;
-
-        // 2. Jika ada input old (saat validasi error dan kembali ke form), kembalikan marker ke posisi sebelumnya
-        var oldLat = document.getElementById('latitude').value;
-        var oldLng = document.getElementById('longitude').value;
+        // =========================================================
+        // MENAMPILKAN PASAR YANG SUDAH ADA DI DATABASE
+        // =========================================================
         
-        if (oldLat && oldLng) {
-            marker = L.marker([oldLat, oldLng]).addTo(map);
-            map.setView([oldLat, oldLng], 15);
-        }
+        // Ambil variabel dari Controller (di-parse ke format JSON)
+        var pasarLama = @json($pasarExisting);
 
-        // 3. Event Listener: Ketika Peta Diklik
+        // Lakukan perulangan (loop) untuk setiap data pasar
+        pasarLama.forEach(function(pasar) {
+            var lat = pasar.lokasi_gis.latitude;
+            var lng = pasar.lokasi_gis.longitude;
+
+            // Buat penanda (marker) untuk pasar lama
+            var existingMarker = L.marker([lat, lng]).addTo(map);
+
+            // Beri tulisan popup agar admin tahu ini pasar apa
+            existingMarker.bindPopup(
+                "<b>" + pasar.nama_pasar + "</b><br>" +
+                "<small class='text-success'>Sudah Terdaftar</small>"
+            );
+        });
+        // =========================================================
+
+
+        // Variabel untuk menyimpan titik baru yang diklik admin
+        var newMarker = null;
+
+        // 3. FITUR PENCARIAN (GEOCODER)
+        var geocoder = L.Control.geocoder({
+            defaultMarkGeocode: false, 
+            placeholder: "Cari desa atau kecamatan..."
+        })
+        .on('markgeocode', function(e) {
+            var lat = e.geocode.center.lat;
+            var lng = e.geocode.center.lng;
+
+            map.flyTo([lat, lng], 16);
+
+            if (newMarker) {
+                map.removeLayer(newMarker);
+            }
+            newMarker = L.marker([lat, lng]).addTo(map);
+            newMarker.bindPopup("Titik Baru: " + e.geocode.name).openPopup();
+
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+        })
+        .addTo(map);
+
+        // 4. Deteksi Klik Manual pada Peta 
         map.on('click', function(e) {
             var lat = e.latlng.lat;
             var lng = e.latlng.lng;
 
-            // Hapus marker sebelumnya jika ada
-            if (marker) {
-                map.removeLayer(marker);
+            if (newMarker) {
+                map.removeLayer(newMarker);
             }
+            newMarker = L.marker([lat, lng]).addTo(map);
+            newMarker.bindPopup("Titik Pasar Baru").openPopup();
 
-            // Tambahkan marker baru di titik yang diklik
-            marker = L.marker([lat, lng]).addTo(map);
-
-            // Masukkan nilai Latitude & Longitude ke dalam kolom input hidden
             document.getElementById('latitude').value = lat;
             document.getElementById('longitude').value = lng;
         });
+
+        // 5. Kembalikan marker jika ada error validasi form
+        var oldLat = document.getElementById('latitude').value;
+        var oldLng = document.getElementById('longitude').value;
+        
+        if (oldLat && oldLng) {
+            newMarker = L.marker([oldLat, oldLng]).addTo(map);
+            map.setView([oldLat, oldLng], 15);
+        }
+        
+        // Memperbaiki bug peta abu-abu
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 100);
     });
 </script>
 @endsection
+</x-form-pasar>
