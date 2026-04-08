@@ -16,7 +16,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-   protected $table = 'user';
+   protected $table = 'users';
 
     // Kolom yang diizinkan untuk diisi
     protected $fillable = [
@@ -30,6 +30,13 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed', // Laravel akan otomatis menghash password
+        ];
+    }
 
     // Relasi One-to-Many: 1 Admin bisa menulis banyak Artikel
     public function artikels()
