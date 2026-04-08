@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Fasilitas;
 use App\Models\PasarDesa;
@@ -17,7 +19,7 @@ class FasilitasController extends Controller
                        ->orderBy('id_pasar') // Urutkan berdasarkan pasar
                        ->get();
 
-        return view('fasilitas.index', compact('fasilitas'));
+        return view('admin.fasilitas.index', compact('fasilitas'));
     }
 
  
@@ -27,7 +29,7 @@ class FasilitasController extends Controller
         $pasar = PasarDesa::all();
 
         // Return form create ke view
-        return view('fasilitas.create', compact('pasar'));
+        return view('admin.fasilitas.create', compact('pasar'));
     }
 
    
@@ -43,7 +45,7 @@ class FasilitasController extends Controller
         Fasilitas::create($validated);
 
         
-        return redirect()->route('fasilitas.index')->with('success', 'Fasilitas berhasil disimpan!');
+        return redirect()->route('admin.fasilitas.index')->with('success', 'Fasilitas berhasil disimpan!');
     }
 
    
@@ -53,7 +55,7 @@ class FasilitasController extends Controller
         $fasilitas = Fasilitas::with('pasarDesa')->findOrFail($id);
 
         // Return ke view dengan data fasilitas detail
-        return view('fasilitas.show', compact('fasilitas'));
+        return view('admin.fasilitas.show', compact('fasilitas'));
     }
 
   
@@ -66,7 +68,7 @@ class FasilitasController extends Controller
         $pasar = PasarDesa::all();
 
         
-        return view('fasilitas.edit', compact('fasilitas', 'pasar'));
+        return view('admin.fasilitas.edit', compact('fasilitas', 'pasar'));
     }
 
  
@@ -86,7 +88,7 @@ class FasilitasController extends Controller
         $fasilitas->update($validated);
 
        
-        return redirect()->route('fasilitas.show', $fasilitas->id)->with('success', 'Fasilitas berhasil diupdate!');
+        return redirect()->route('admin.fasilitas.show', $fasilitas->id)->with('success', 'Fasilitas berhasil diupdate!');
     }
 
     public function destroy(string $id)
@@ -98,6 +100,6 @@ class FasilitasController extends Controller
         $fasilitas->delete();
 
        
-        return redirect()->route('fasilitas.index')->with('success', 'Fasilitas berhasil dihapus!');
+        return redirect()->route('admin.fasilitas.index')->with('success', 'Fasilitas berhasil dihapus!');
     }
 }

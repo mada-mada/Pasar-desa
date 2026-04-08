@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Artikel;
 use Illuminate\Http\Request;
@@ -16,14 +18,14 @@ class ArtikelController extends Controller
                     ->orderBy('tanggal_rilis', 'desc')
                     ->get();
 
-        return view('artikel.index', compact('artikel'));
+        return view('admin.artikel.index', compact('artikel'));
     }
 
    
     public function create()
     {
         // Return form create ke view
-        return view('artikel.create');
+        return view('admin.artikel.create');
     }
 
     
@@ -46,7 +48,7 @@ class ArtikelController extends Controller
         Artikel::create($validated);
 
         // Redirect ke halaman index dengan pesan sukses
-        return redirect()->route('artikel.index')->with('success', 'Artikel berhasil disimpan!');
+        return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil disimpan!');
     }
 
    
@@ -56,7 +58,7 @@ class ArtikelController extends Controller
         $artikel = Artikel::with('penulis')->findOrFail($id);
 
         
-        return view('artikel.show', compact('artikel'));
+        return view('admin.artikel.show', compact('artikel'));
     }
 
     
@@ -66,7 +68,7 @@ class ArtikelController extends Controller
         $artikel = Artikel::findOrFail($id);
 
         
-        return view('artikel.edit', compact('artikel'));
+        return view('admin.artikel.edit', compact('artikel'));
     }
 
    
@@ -96,7 +98,7 @@ class ArtikelController extends Controller
         $artikel->update($validated);
 
         // Redirect ke halaman show dengan pesan sukses
-        return redirect()->route('artikel.show', $artikel->id)->with('success', 'Artikel berhasil diupdate!');
+        return redirect()->route('admin.artikel.show', $artikel->id)->with('success', 'Artikel berhasil diupdate!');
     }
 
    
@@ -114,6 +116,6 @@ class ArtikelController extends Controller
         $artikel->delete();
 
       
-        return redirect()->route('artikel.index')->with('success', 'Artikel berhasil dihapus!');
+        return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil dihapus!');
     }
 }

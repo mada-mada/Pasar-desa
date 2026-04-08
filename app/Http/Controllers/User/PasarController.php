@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Models\PasarDesa;
@@ -19,7 +20,7 @@ class PasarController extends Controller
     {
         $pasar = PasarDesa::with(['fasilitas', 'lokasiGis'])->findOrFail($id);
 
-        return view('front.pasar.show', compact('pasar'));
+        return view('user.pasar.show', compact('pasar'));
     }
 
 }
