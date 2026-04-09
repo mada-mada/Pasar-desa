@@ -45,7 +45,34 @@
                             <input type="text" name="jam_operasional" class="form-control" value="{{ old('jam_operasional') }}" required placeholder="Contoh: 05:00 - 12:00 WIB">
                         </div>
 
-                        <div class="form-group mb-3">
+                         <div class="form-group mb-3">
+                            <label for="nama_fasilitas">Nama Fasilitas</label>
+        
+                        </div>
+
+                        <div id="fasilitas-container">
+                            <div class="row mb-2 fasilitas-row">
+                                 <div class="col-md-5 form-group">
+                                              <input type="text" name="nama_fasilitas[]" class="form-control" placeholder="Contoh: Toilet Umum" required>
+                                </div>
+                                     <div class="col-md-5 form-group">
+                                              <select name="status_ketersediaan[]" class="form-control" required>
+                                                     <option value="">-- Pilih Status --</option>
+                                                     <option value="Tersedia">Tersedia</option>
+                                                     <option value="Tidak Ada">Tidak Ada</option>
+                                                     <option value="Rusak">Rusak</option>
+                                             </select>
+                                        </div>
+                        <div class="col-md-2 form-group">
+                               <button type="button" class="btn btn-danger w-100 btn-hapus-fasilitas" style="display: none;">Hapus</button>
+                    </div>
+                         </div>
+                                </div>
+                                    <button type="button" id="btn-tambah-fasilitas" class="btn btn-sm btn-outline-success mt-2">
+                                              + Tambah Fasilitas Lainnya
+                                        </button>
+
+                        <div class="form-group mb-3 mt-4">
                             <label for="alamat_lengkap">Alamat Lengkap <span class="text-danger">*</span></label>
                             <textarea name="alamat_lengkap" class="form-control" rows="2" required>{{ old('alamat_lengkap') }}</textarea>
                         </div>
@@ -98,6 +125,36 @@
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    const container = document.getElementById('fasilitas-container');
+    const btnTambah = document.getElementById('btn-tambah-fasilitas');
+
+    // Event untuk menambah baris fasilitas baru
+    btnTambah.addEventListener('click', function() {
+        // Ambil elemen baris pertama
+        const barisPertama = container.querySelector('.fasilitas-row');
+        // Kloning (copy) elemen tersebut
+        const barisBaru = barisPertama.cloneNode(true);
+
+        // Kosongkan nilai input pada baris kloningan
+        barisBaru.querySelector('input').value = '';
+        barisBaru.querySelector('select').value = '';
+        
+        // Tampilkan tombol hapus pada baris kloningan
+        barisBaru.querySelector('.btn-hapus-fasilitas').style.display = 'block';
+
+        // Tambahkan baris baru ke dalam container
+        container.appendChild(barisBaru);
+    });
+
+    // Event delegation untuk tombol hapus (karena tombol di-generate dinamis)
+    container.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('btn-hapus-fasilitas')) {
+            // Hapus elemen parent (baris) dari tombol yang diklik
+            e.target.closest('.fasilitas-row').remove();
+        }
+    });
+});
     document.addEventListener("DOMContentLoaded", function() {
         // 1. Inisialisasi Peta
         var map = L.map('map').setView([-6.3275, 108.3249], 11);
