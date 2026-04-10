@@ -7,19 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Fasilitas extends Model
 {
-    use HasFactory;
-
     protected $table = 'fasilitas';
+    protected $fillable = ['id_pasar', 'id_jenis_fasilitas', 'status_ketersediaan'];
 
-    protected $fillable = [
-        'id_pasar',
-        'nama_fasilitas',
-        'status_ketersediaan',
-    ];
-
-    // Relasi Many-to-One (Inverse): Fasilitas ini milik suatu Pasar
-    public function pasarDesa()
+    // Relasi untuk menarik nama fasilitas dari tabel master
+    public function jenisFasilitas()
     {
-        return $this->belongsTo(PasarDesa::class, 'id_pasar', 'id');
+        // belongsTo karena 1 baris fasilitas merujuk ke 1 jenis fasilitas
+        return $this->belongsTo(JenisFasilitas::class, 'id_jenis_fasilitas');
     }
 }

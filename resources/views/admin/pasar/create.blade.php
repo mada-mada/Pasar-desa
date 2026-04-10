@@ -50,28 +50,39 @@
         
                         </div>
 
-                        <div id="fasilitas-container">
-                            <div class="row mb-2 fasilitas-row">
-                                 <div class="col-md-5 form-group">
-                                              <input type="text" name="nama_fasilitas[]" class="form-control" placeholder="Contoh: Toilet Umum" required>
-                                </div>
-                                     <div class="col-md-5 form-group">
-                                              <select name="status_ketersediaan[]" class="form-control" required>
-                                                     <option value="">-- Pilih Status --</option>
-                                                     <option value="Tersedia">Tersedia</option>
-                                                     <option value="Tidak Ada">Tidak Ada</option>
-                                                     <option value="Rusak">Rusak</option>
-                                             </select>
-                                        </div>
-                        <div class="col-md-2 form-group">
-                               <button type="button" class="btn btn-danger w-100 btn-hapus-fasilitas" style="display: none;">Hapus</button>
-                    </div>
-                         </div>
-                                </div>
-                                    <button type="button" id="btn-tambah-fasilitas" class="btn btn-sm btn-outline-success mt-2">
-                                              + Tambah Fasilitas Lainnya
-                                        </button>
+           <h5 class="border-bottom pb-2 mt-4">Ketersediaan Fasilitas</h5>
+<p class="text-muted small mb-3">Tentukan status ketersediaan untuk setiap fasilitas berikut.</p>
 
+<div class="row">
+    @foreach($jenisFasilitas as $fasilitas)
+    <div class="col-md-6 mb-3">
+        <div class="card bg-light border-0 shadow-sm">
+            <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                
+                <div class="d-flex align-items-center">
+                    @if($fasilitas->icon_fasilitas)
+                        <i class="{{ $fasilitas->icon_fasilitas }} fa-fw text-primary me-2"></i>
+                    @else
+                        <i class="fas fa-check-circle fa-fw text-secondary me-2"></i>
+                    @endif
+                    <span class="fw-bold">{{ $fasilitas->nama_fasilitas }}</span>
+                </div>
+
+                <input type="hidden" name="id_jenis_fasilitas[]" value="{{ $fasilitas->id }}">
+
+                <div style="width: 150px;">
+                    <select name="status_ketersediaan[]" class="form-select form-select-sm" required>
+                        <option value="Tidak Ada">Tidak Ada</option>
+                        <option value="Tersedia">Tersedia</option>
+                        <option value="Rusak">Rusak</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    @endforeach
+</div>
                         <div class="form-group mb-3 mt-4">
                             <label for="alamat_lengkap">Alamat Lengkap <span class="text-danger">*</span></label>
                             <textarea name="alamat_lengkap" class="form-control" rows="2" required>{{ old('alamat_lengkap') }}</textarea>
