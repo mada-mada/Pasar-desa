@@ -11,8 +11,9 @@ class UserController extends Controller
     {
         $request->validate([
             'username'     => 'required|unique:users,username',
+            'email'        => 'required|email|unique:users,email',
             'password'     => 'required|min:6',
-           'role'         => 'required|in:Super Admin,Admin',
+            'role'         => 'required|in:Super Admin,Admin',
             'nama_lengkap' => 'required|string|max:255',
         ]);
 
@@ -24,6 +25,8 @@ class UserController extends Controller
             'password'     => $request->password, 
             'role'         => $request->role,
             'nama_lengkap' => $request->nama_lengkap,
+            'email'        => $request->email,
+
         ]);
 
         // 3. Kembalikan response JSON

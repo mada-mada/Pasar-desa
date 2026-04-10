@@ -17,7 +17,10 @@ class PasarController extends Controller
     {
         // Menambahkan eager loading untuk mencegah N+1 Query Problem
         $pasar = PasarDesa::with(['lokasiGis', 'fasilitas'])->orderBy('nama_pasar')->get();
-        return view('admin.pasar.index', compact('pasar'));
+       return response()->json([
+        'message' => 'Berhasil mengambil data pasar',
+        'data' => $pasar
+        ], 200);
     }
 
     public function create()
@@ -77,8 +80,10 @@ class PasarController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.pasar.index')
-                             ->with('success', 'Pasar, Lokasi Peta, dan Fasilitas berhasil disimpan!');
+           return response()->json([
+                 'message' => 'Berhasil menambahkan pasar, fasilitas, dan lokasi!',
+                    'data' => $pasar
+                ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -209,8 +214,10 @@ class PasarController extends Controller
                 Storage::disk('public')->delete($fotoPath);
             }
 
-            return redirect()->route('admin.pasar.index')
-                             ->with('success', 'Pasar, Fasilitas, beserta lokasinya berhasil dihapus!');
+            return response()->json([
+                 'message' => 'Berhasil menghapus pasar, fasilitas, dan lokasi!',
+                    'data' => $pasar
+                ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
