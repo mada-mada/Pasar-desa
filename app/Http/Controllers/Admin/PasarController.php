@@ -100,7 +100,11 @@ class PasarController extends Controller
     public function show(string $id)
     {
         $pasar = PasarDesa::with(['fasilitas.jenisFasilitas', 'lokasiGis'])->findOrFail($id);
-        return view('admin.pasar.show', compact('pasar'));
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail Data Pasar',
+            'data'    => $pasar
+        ], 200);
     }
 
     public function edit(string $id)
