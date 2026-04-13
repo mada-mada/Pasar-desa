@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\PasarDesa;
 
@@ -9,14 +10,21 @@ class PasarController extends Controller
 {
     public function index()
     {
-        $pasars = PasarDesa::latest()->get();
-        return view('superadmin.pasar.index', compact('pasars'));
+        $pasar = PasarDesa::latest()->get();
+       return response()->json([
+        'message' => 'berhasil mengambil data pasar',
+        'data' => $pasar
+        ], 200);
     }
 
     public function show($id)
     {
         $pasar = PasarDesa::with(['fasilitas', 'lokasiGis'])->findOrFail($id);
-        return view('superadmin.pasar.show', compact('pasar'));
+       return response()->json([
+            'success' => true,
+            'message' => 'Detail Data Pasar',
+            'data'    => $pasar
+        ], 200);
     }
 
     public function destroy($id)
@@ -24,6 +32,9 @@ class PasarController extends Controller
         $pasar = PasarDesa::findOrFail($id);
         $pasar->delete();
 
-        return redirect()->route('superadmin.pasar.index')->with('success', 'Profil Pasar Desa berhasil dihapus oleh Super Admin.');
+        return response()->json([
+            'success' => true,
+            'message' => 'berhasil menghapus data pasar'
+        ], 200);
     }
 }

@@ -35,6 +35,6 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::resource('pasar', SuperAdmin\PasarController::class);
     Route::resource('artikel', SuperAdmin\ArtikelController::class);
     Route::resource('fasilitas', SuperAdmin\FasilitasController::class);
-});
+    });
 
-});
+ });

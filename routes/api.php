@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PasarController;
 use App\Http\Controllers\Admin\ArtikelController;
 use App\Http\Controllers\Admin\FasilitasController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SuperAdmin;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/users', [UserController::class, 'store']);
@@ -23,6 +24,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('pasar', PasarController::class);
         Route::apiResource('artikel', ArtikelController::class);
         Route::apiResource('fasilitas', FasilitasController::class);
+    });
+
+    Route::prefix('superadmin')->name('superadmin.')->group(function () {
+        Route::apiResource('pasar', SuperAdmin\PasarController::class);
+        Route::apiResource('artikel', SuperAdmin\ArtikelController::class);
+        Route::apiResource('fasilitas', SuperAdmin\FasilitasController::class);
+        Route::apiResource('admin', SuperAdmin\AdminController::class);
     });
 
 });

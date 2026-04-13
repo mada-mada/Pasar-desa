@@ -10,8 +10,11 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $admins = User::where('role', 'Admin')->get();
-        return view('superadmin.admins.index', compact('admins'));
+        $admin = User::where('role', 'Admin')->get();
+        return response()->json([
+            'message' => 'berhasil mengambil data admin',
+            'data' => $admin
+        ], 200);
     }
 
     public function create()
@@ -34,13 +37,18 @@ class AdminController extends Controller
             'nama_lengkap' => $request->nama_lengkap,
         ]);
 
-        return redirect()->route('superadmin.admins.index')->with('success', 'Akun Admin berhasil ditambahkan.');
+        return response()->json([
+            'message' => 'Akun Admin berhasil ditambahkan',
+            ], 201);
     }
 
     public function edit($id)
     {
         $admin = User::findOrFail($id);
-        return view('superadmin.admins.edit', compact('admin'));
+        return response()->json([
+            'message' => 'berhasil mengambil data admin',
+            'data' => $admin
+        ], 200);
     }
 
     public function update(Request $request, $id)
@@ -62,7 +70,10 @@ class AdminController extends Controller
         
         $admin->save();
 
-        return redirect()->route('superadmin.admins.index')->with('success', 'Akun Admin berhasil diperbarui.');
+        return response()->json([
+            'message' => 'Akun Admin berhasil diperbarui',
+            'data' => $admin
+        ], 200);
     }
 
     public function destroy($id)
@@ -70,6 +81,8 @@ class AdminController extends Controller
         $admin = User::findOrFail($id);
         $admin->delete();
 
-        return redirect()->route('superadmin.admins.index')->with('success', 'Akun Admin berhasil dihapus.');
+        return response()->json([
+            'message' => 'Akun Admin berhasil dihapus'
+        ], 200);
     }
 }
