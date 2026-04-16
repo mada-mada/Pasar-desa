@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin - Tambah Pasar Desa')
+@section('title', 'Admin - Edit Pasar Desa')
 
 @section('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,9 +12,9 @@
     <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
         <a href="{{ route('admin.pasar.index') }}" class="hover:text-gold transition-colors">Daftar Pasar</a>
         <span>/</span>
-        <span class="text-gray-800 font-medium">Tambah Data</span>
+        <span class="text-gray-800 font-medium">Edit Data</span>
     </div>
-    <h2 class="text-2xl font-bold border-l-4 border-gold pl-3 text-blue-deep">Tambah Data Pasar Desa Baru</h2>
+    <h2 class="text-2xl font-bold border-l-4 border-gold pl-3 text-blue-deep">Edit Data {{ $pasar->nama_pasar }}</h2>
 </div>
 
 @if ($errors->any())
@@ -35,8 +35,9 @@
     </div>
 @endif
 
-<form action="{{ route('admin.pasar.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('admin.pasar.update', $pasar->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
     
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
@@ -49,19 +50,19 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pasar <span class="text-red-500">*</span></label>
-                    <input type="text" name="nama_pasar" value="{{ old('nama_pasar') }}" required placeholder="Contoh: Pasar Desa Jatibarang" 
+                    <input type="text" name="nama_pasar" value="{{ old('nama_pasar', $pasar->nama_pasar) }}" required placeholder="Contoh: Pasar Desa Jatibarang" 
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Hari Pasaran <span class="text-red-500">*</span></label>
-                        <input type="text" name="hari_pasaran" value="{{ old('hari_pasaran') }}" required placeholder="Contoh: Senin & Kamis" 
+                        <input type="text" name="hari_pasaran" value="{{ old('hari_pasaran', $pasar->hari_pasaran) }}" required placeholder="Contoh: Senin & Kamis" 
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Jam Operasional <span class="text-red-500">*</span></label>
-                        <input type="text" name="jam_operasional" value="{{ old('jam_operasional') }}" required placeholder="Contoh: 05:00 - 12:00" 
+                        <input type="text" name="jam_operasional" value="{{ old('jam_operasional', $pasar->jam_operasional) }}" required placeholder="Contoh: 05:00 - 12:00" 
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">
                     </div>
                 </div>
@@ -75,22 +76,33 @@
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         @isset($jenisFasilitas)
-                        @foreach($jenisFasilitas as $fasilitas)
+                        @foreach($jenisFasilitas as $fasilitasItem)
+                            @php
+                                $existingStatus = 'Tidak Ada';
+                                if($pasar->fasilitas) {
+                                    foreach($pasar->fasilitas as $pasFas) {
+                                        if($pasFas->id_jenis_fasilitas == $fasilitasItem->id) {
+                                            $existingStatus = $pasFas->status_ketersediaan;
+                                            break;
+                                        }
+                                    }
+                                }
+                            @endphp
                         <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 hover:shadow-sm transition-shadow">
                             <div class="flex items-center">
-                                @if($fasilitas->icon_fasilitas)
-                                    <i class="{{ $fasilitas->icon_fasilitas }} w-6 text-blue-light"></i>
+                                @if($fasilitasItem->icon_fasilitas)
+                                    <i class="{{ $fasilitasItem->icon_fasilitas }} w-6 text-blue-light"></i>
                                 @else
                                     <i class="fas fa-check-circle w-6 text-gray-400"></i>
                                 @endif
-                                <span class="text-sm font-medium text-gray-700 ml-1">{{ $fasilitas->nama_fasilitas }}</span>
+                                <span class="text-sm font-medium text-gray-700 ml-1">{{ $fasilitasItem->nama_fasilitas }}</span>
                             </div>
                             
-                            <input type="hidden" name="id_jenis_fasilitas[]" value="{{ $fasilitas->id }}">
+                            <input type="hidden" name="id_jenis_fasilitas[]" value="{{ $fasilitasItem->id }}">
                             <select name="status_ketersediaan[]" required class="text-sm border-gray-300 rounded-md shadow-sm focus:border-gold focus:ring focus:ring-gold focus:ring-opacity-50 py-1 pl-2 pr-8">
-                                <option value="Tidak Ada">Tidak Ada</option>
-                                <option value="Tersedia">Tersedia</option>
-                                <option value="Rusak">Rusak</option>
+                                <option value="Tidak Ada" {{ $existingStatus == 'Tidak Ada' ? 'selected' : '' }}>Tidak Ada</option>
+                                <option value="Tersedia" {{ $existingStatus == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                                <option value="Rusak" {{ $existingStatus == 'Rusak' ? 'selected' : '' }}>Rusak</option>
                             </select>
                         </div>
                         @endforeach
@@ -101,19 +113,24 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 mt-4">Alamat Lengkap <span class="text-red-500">*</span></label>
                     <textarea name="alamat_lengkap" rows="2" required placeholder="Jalan Raya No..." 
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">{{ old('alamat_lengkap') }}</textarea>
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">{{ old('alamat_lengkap', $pasar->alamat_lengkap) }}</textarea>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Singkat <span class="text-red-500">*</span></label>
                     <textarea name="deskripsi" rows="3" required placeholder="Pasar ini merupakan..." 
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">{{ old('deskripsi') }}</textarea>
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">{{ old('deskripsi', $pasar->deskripsi) }}</textarea>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Foto Pasar <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                    @if($pasar->foto_pasar)
+                    <div class="mb-3">
+                        <img src="{{ asset('storage/' . $pasar->foto_pasar) }}" alt="Foto Saat Ini" class="h-32 w-auto rounded border border-gray-300 object-cover">
+                    </div>
+                    @endif
                     <input type="file" name="foto_pasar" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
-                    <p class="text-xs text-gray-500 mt-1">Format: JPG/PNG, Max: 2MB.</p>
+                    <p class="text-xs text-gray-500 mt-1">Format: JPG/PNG, Max: 2MB. Biarkan kosong jika tidak ingin mengubah foto saat ini.</p>
                 </div>
             </div>
         </div>
@@ -130,12 +147,12 @@
             <div class="grid grid-cols-2 gap-4 mt-auto">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase">Latitude</label>
-                    <input type="text" name="latitude" id="latitude" value="{{ old('latitude') }}" readonly required
+                    <input type="text" name="latitude" id="latitude" value="{{ old('latitude', $pasar->lokasiGis->latitude ?? '') }}" readonly required
                            class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded mt-1 text-sm text-gray-700 focus:outline-none placeholder-gray-400" placeholder="Klik pada peta">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase">Longitude</label>
-                    <input type="text" name="longitude" id="longitude" value="{{ old('longitude') }}" readonly required
+                    <input type="text" name="longitude" id="longitude" value="{{ old('longitude', $pasar->lokasiGis->longitude ?? '') }}" readonly required
                            class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded mt-1 text-sm text-gray-700 focus:outline-none placeholder-gray-400" placeholder="Klik pada peta">
                 </div>
             </div>
@@ -146,7 +163,7 @@
     <div class="mt-8 flex justify-end space-x-3 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <a href="{{ route('admin.pasar.index') }}" class="px-6 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium transition-colors">Batal</a>
         <button type="submit" class="btn-blue px-6 py-2 rounded-lg font-medium shadow-md flex items-center">
-            <i class="fas fa-save mr-2"></i> Simpan Data Pasar
+            <i class="fas fa-save mr-2"></i> Simpan Perubahan
         </button>
     </div>
 
@@ -159,7 +176,9 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var map = L.map('map').setView([-6.3275, 108.3249], 11);
+        var defaultLat = {{ $pasar->lokasiGis->latitude ?? -6.3275 }};
+        var defaultLng = {{ $pasar->lokasiGis->longitude ?? 108.3249 }};
+        var map = L.map('map').setView([defaultLat, defaultLng], 14);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -167,14 +186,16 @@
 
         @isset($pasarExisting)
         var pasarLama = @json($pasarExisting);
-        pasarLama.forEach(function(pasar) {
-            var lat = pasar.lokasi_gis.latitude;
-            var lng = pasar.lokasi_gis.longitude;
-            var existingMarker = L.marker([lat, lng]).addTo(map);
-            existingMarker.bindPopup(
-                "<b class='text-blue-deep'>" + pasar.nama_pasar + "</b><br>" +
-                "<small class='text-green-600 font-bold'>Sudah Terdaftar</small>"
-            );
+        pasarLama.forEach(function(pasarIt) {
+            if(pasarIt.lokasi_gis) {
+                var lat = pasarIt.lokasi_gis.latitude;
+                var lng = pasarIt.lokasi_gis.longitude;
+                var existingMarker = L.marker([lat, lng]).addTo(map);
+                existingMarker.bindPopup(
+                    "<b class='text-blue-deep'>" + pasarIt.nama_pasar + "</b><br>" +
+                    "<small class='text-green-600 font-bold'>Sudah Terdaftar</small>"
+                );
+            }
         });
         @endisset
 
@@ -205,7 +226,7 @@
 
             if (newMarker) { map.removeLayer(newMarker); }
             newMarker = L.marker([lat, lng]).addTo(map);
-            newMarker.bindPopup("<span class='font-bold text-gold text-sm'>Lokasi Pasar Baru</span>").openPopup();
+            newMarker.bindPopup("<span class='font-bold text-gold text-sm'>Lokasi Pasar Terpilih</span>").openPopup();
 
             document.getElementById('latitude').value = lat;
             document.getElementById('longitude').value = lng;
@@ -216,7 +237,7 @@
         
         if (oldLat && oldLng) {
             newMarker = L.marker([oldLat, oldLng]).addTo(map);
-            map.setView([oldLat, oldLng], 15);
+            newMarker.bindPopup("<span class='font-bold text-gold text-sm'>Lokasi Pasar Saat Ini</span>").openPopup();
         }
         
         setTimeout(function() { map.invalidateSize(); }, 100);

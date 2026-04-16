@@ -20,13 +20,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('api.admin.')->group(function () {
         Route::apiResource('pasar', PasarController::class);
         Route::apiResource('artikel', ArtikelController::class);
         Route::apiResource('fasilitas', FasilitasController::class);
     });
 
-    Route::prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::prefix('superadmin')->name('api.superadmin.')->group(function () {
         Route::apiResource('pasar', SuperAdmin\PasarController::class);
         Route::apiResource('artikel', SuperAdmin\ArtikelController::class);
         Route::apiResource('fasilitas', SuperAdmin\FasilitasController::class);

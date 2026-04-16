@@ -11,20 +11,13 @@ class PasarController extends Controller
     public function index()
     {
         $pasar = PasarDesa::latest()->get();
-       return response()->json([
-        'message' => 'berhasil mengambil data pasar',
-        'data' => $pasar
-        ], 200);
+        return view('superadmin.pasar.index', compact('pasar'));
     }
 
     public function show($id)
     {
         $pasar = PasarDesa::with(['fasilitas', 'lokasiGis'])->findOrFail($id);
-       return response()->json([
-            'success' => true,
-            'message' => 'Detail Data Pasar',
-            'data'    => $pasar
-        ], 200);
+        return view('superadmin.pasar.show', compact('pasar'));
     }
 
     public function destroy($id)
@@ -32,9 +25,6 @@ class PasarController extends Controller
         $pasar = PasarDesa::findOrFail($id);
         $pasar->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'berhasil menghapus data pasar'
-        ], 200);
+        return redirect()->route('superadmin.pasar.index')->with('success', 'Berhasil menghapus data pasar');
     }
 }

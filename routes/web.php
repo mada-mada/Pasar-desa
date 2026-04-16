@@ -7,18 +7,29 @@ use App\Http\Controllers\User;
 use App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\AuthController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
+Route::get('/', [User\PasarController::class, 'index']);
 Route::get('/pasar', [User\PasarController::class, 'index'])->name('pasar.index');
 Route::get('/pasar/{slug}', [User\PasarController::class, 'show'])->name('pasar.show');
 Route::get('/artikel', [User\ArtikelController::class, 'index'])->name('artikel.index');
+Route::get('/artikel/{id}', [User\ArtikelController::class, 'show'])->name('artikel.show');
 
 
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::get('/debug-session', function(Request $request) {
+    return [
+        'auth_check' => Auth::check(),
+        'auth_user' => Auth::user(),
+        'session_all' => $request->session()->all()
+    ];
+});
+
+Route::get('/test-flash', function() {
+    return redirect('/debug-session')->with('test', 'This is a test');
+});
+
+Route::middleware('auth')->group(function () {
 
   Route::get('/user', function (Request $request) {
         return $request->user();
