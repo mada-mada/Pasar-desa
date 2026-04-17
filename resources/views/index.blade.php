@@ -32,7 +32,7 @@
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}"
                         class="search-input w-full pl-12 pr-32 py-4 rounded-full border-0 text-gray-900 shadow-2xl focus:ring-0 text-lg transition-all"
-                        placeholder="Cari nama pasar atau kecamatan...">
+                        placeholder="Cari nama pasar...">
                     <button type="submit"
                         class="absolute right-2 px-6 py-2 rounded-full bg-gold hover:bg-yellow-500 text-blue-deep font-bold transition-all shadow-lg transform hover:scale-105">
                         Cari Pasar
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Map Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-20 mb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-20 mb-16 mt-10">
         <div class="bg-white rounded-2xl shadow-2xl p-2 md:p-4 border border-x-gray-100">
             <div id="heroMap" class="w-full h-96 md:h-[30rem] rounded-xl object-cover"></div>
         </div>
@@ -123,7 +123,7 @@
     @if (isset($artikel) && $artikel->count() > 0)
         <div class="bg-gray-100 py-16 border-t border-gray-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-end mb-10">
+                <div class="flex justify-between items-end mb-5">
                     <div>
                         <h2 class="text-3xl font-bold text-gray-900"><span
                                 class="border-l-4 border-gold pl-3">Artikel</span> Terkini</h2>
@@ -141,8 +141,8 @@
                             class="bg-white rounded-xl shadow border border-gray-100 overflow-hidden transform hover:-translate-y-2 transition-all duration-300">
                             <a href="{{ route('artikel.show', $art->id) }}" class="block">
                                 @if ($art->gambar_sampul)
-                                    <img src="{{ asset('storage/' . $art->gambar_sampul) }}" class="w-full h-48 object-cover object-center"
-                                        alt="{{ $art->judul_artikel }}">
+                                    <img src="{{ asset('storage/' . $art->gambar_sampul) }}"
+                                        class="w-full h-48 object-cover object-center" alt="{{ $art->judul_artikel }}">
                                 @else
                                     <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
                                         <i class="fas fa-image text-4xl text-gray-400"></i>
@@ -151,7 +151,8 @@
                                 <div class="p-6">
                                     <div class="text-xs text-gold font-bold mb-2 uppercase">
                                         {{ \Carbon\Carbon::parse($art->tanggal_rilis)->translatedFormat('d F Y') }}</div>
-                                    <h3 class="text-xl font-bold text-gray-900 hover:text-blue-deep transition-colors line-clamp-2 mt-2">
+                                    <h3
+                                        class="text-xl font-bold text-gray-900 hover:text-blue-deep transition-colors line-clamp-2 mt-2">
                                         {{ $art->judul_artikel }}
                                     </h3>
                                     <p class="mt-3 text-base text-gray-500 line-clamp-3">

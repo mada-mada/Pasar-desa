@@ -9,6 +9,7 @@ use App\Http\Controllers\AuthController;
 
 Route::get('/', [User\PasarController::class, 'index']);
 Route::get('/pasar', [User\PasarController::class, 'index'])->name('pasar.index');
+Route::get('/daftar-pasar', [User\PasarController::class, 'list'])->name('pasar.list');
 Route::get('/pasar/{slug}', [User\PasarController::class, 'show'])->name('pasar.show');
 Route::get('/artikel', [User\ArtikelController::class, 'index'])->name('artikel.index');
 Route::get('/artikel/{id}', [User\ArtikelController::class, 'show'])->name('artikel.show');
@@ -46,6 +47,7 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::resource('pasar', SuperAdmin\PasarController::class);
     Route::resource('artikel', SuperAdmin\ArtikelController::class);
     Route::resource('fasilitas', SuperAdmin\FasilitasController::class);
+    Route::resource('admin', SuperAdmin\AdminController::class);
     });
 
  });

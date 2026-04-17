@@ -10,20 +10,14 @@ class ArtikelController extends Controller
 {
     public function index()
     {
-        $artikels = Artikel::with('penulis')->latest()->get();
-        return response()->json([
-            'message' => 'berhasil mengambil data artikel',
-            'data' => $artikels
-        ], 200);
+        $artikel = Artikel::with('penulis')->latest()->get();
+        return view('superadmin.artikel.index', compact('artikel'));
     }
 
     public function show($id)
     {
-        $artikel = Artikel::with('penulis')->findOrFail($id);
-        return response()->json([
-            'message' => 'berhasil mengambil data artikel',
-            'data' => $artikel
-        ], 200);
+        // Redirect super admin ke public artikel page
+        return redirect()->route('artikel.show', $id);
     }
 
     public function destroy($id)
@@ -31,8 +25,6 @@ class ArtikelController extends Controller
         $artikel = Artikel::findOrFail($id);
         $artikel->delete();
 
-        return response()->json([
-            'message' => 'Artikel berhasil dihapus oleh Super Admin.'
-        ], 200);
+        return redirect()->route('superadmin.artikel.index')->with('success', 'Artikel berhasil dihapus permanen oleh Super Admin.');
     }
 }

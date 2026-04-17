@@ -25,6 +25,20 @@ class PasarController extends Controller
         return view('index', compact('Pasar', 'artikel'));
     }
 
+    public function list(Request $request)
+    {
+        $query = PasarDesa::with(['lokasiGis', 'fasilitas']);
+        
+        if ($request->has('search') && $request->search != '') {
+            $query->where('nama_pasar', 'like', '%' . $request->search . '%')
+                  ->orWhere('alamat_lengkap', 'like', '%' . $request->search . '%');
+        }
+        
+        $pasarPage = $query->paginate(9);
+        
+        return view('user.pasar.list', compact('pasarPage'));
+    }
+
     public function show($id)
     {
         $pasar = PasarDesa::with(['fasilitas', 'lokasiGis'])->findOrFail($id);

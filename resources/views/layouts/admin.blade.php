@@ -39,7 +39,8 @@
 <body class="bg-gray-100 flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-blue-deep text-white flex flex-col shadow-2xl z-20">
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-50 z-20 hidden lg:hidden"></div>
+    <aside id="sidebar" class="w-64 bg-blue-deep text-white flex flex-col shadow-2xl z-30 absolute inset-y-0 left-0 transform -translate-x-full lg:relative lg:translate-x-0 transition duration-300 ease-in-out">
         <div class="h-16 flex items-center justify-center border-b border-blue-800">
             <h1 class="text-xl font-bold text-gold"><i class="fas fa-store mr-2"></i> Pasar Desa</h1>
         </div>
@@ -74,7 +75,7 @@
         <!-- Top Navbar -->
         <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10 glass">
             <div class="flex items-center">
-                <button class="text-gray-500 hover:text-blue-deep focus:outline-none lg:hidden">
+                <button id="mobile-menu-btn" class="text-gray-500 hover:text-blue-deep focus:outline-none lg:hidden">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
             </div>
@@ -93,5 +94,18 @@
     </div>
 
     @yield('scripts')
+    <script>
+        const btn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            if (overlay) overlay.classList.toggle('hidden');
+        }
+
+        if (btn) btn.addEventListener('click', toggleSidebar);
+        if (overlay) overlay.addEventListener('click', toggleSidebar);
+    </script>
 </body>
 </html>

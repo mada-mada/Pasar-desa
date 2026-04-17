@@ -16,8 +16,7 @@ class PasarController extends Controller
 
     public function show($id)
     {
-        $pasar = PasarDesa::with(['fasilitas', 'lokasiGis'])->findOrFail($id);
-        return view('superadmin.pasar.show', compact('pasar'));
+        return redirect()->route('pasar.show', $id);
     }
 
     public function destroy($id)

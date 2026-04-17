@@ -36,13 +36,18 @@
                         {{ $p->alamat_lengkap }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <form action="{{ route('superadmin.pasar.destroy', $p->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus permanen data ini?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-white bg-red-600 hover:bg-red-700 rounded px-3 py-1 transition-colors">
-                                <i class="fas fa-trash-alt mr-1"></i> Hapus
-                            </button>
-                        </form>
+                        <div class="flex space-x-2">
+                            <a href="{{ route('superadmin.pasar.show', $p->id) }}" target="_blank" class="text-white bg-blue-deep hover:bg-blue-dark rounded px-3 py-1 transition-colors" title="Lihat Detail Profil Pasar">
+                                <i class="fas fa-external-link-alt mr-1"></i> Lihat
+                            </a>
+                            <form action="{{ route('superadmin.pasar.destroy', $p->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus permanen data ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-white bg-red-600 hover:bg-red-700 rounded px-3 py-1 transition-colors">
+                                    <i class="fas fa-trash-alt mr-1"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty

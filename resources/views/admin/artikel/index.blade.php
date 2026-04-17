@@ -3,15 +3,16 @@
 @section('title', 'Admin - Daftar Artikel')
 
 @section('content')
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
             <h2 class="text-2xl font-bold border-l-4 border-gold pl-3 text-blue-deep">Manajemen Artikel</h2>
-            <p class="text-gray-500 mt-1">Kelola berita, pengumuman, dan artikel publikasi pasar desa.</p>
+            <p class="text-gray-500 mt-1 text-sm sm:text-base">Kelola berita, pengumuman, dan artikel publikasi pasar desa.</p>
         </div>
         <a href="{{ route('admin.artikel.create') }}"
-            class="btn-blue px-4 py-2 rounded-lg font-medium shadow-lg flex items-center space-x-2">
+            class="btn-blue px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium shadow-lg flex items-center space-x-2">
             <i class="fas fa-plus"></i>
-            <span>Tulis Artikel Baru</span>
+            <span class="hidden sm:inline">Tulis Artikel Baru</span>
+            <span class="sm:hidden">Tulis Artikel</span>
         </a>
     </div>
 
