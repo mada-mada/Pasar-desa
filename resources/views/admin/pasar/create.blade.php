@@ -158,23 +158,31 @@
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    console.log("Inisialisasi Peta Create Admin...");
+    try {
+        // Eksekusi langsung tanpa DOMContentLoaded
         var map = L.map('map').setView([-6.3275, 108.3249], 11);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+        // Gunakan CartoDB agar tidak diblokir (403 Access Blocked)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap © CARTO',
+            subdomains: 'abcd',
+            maxZoom: 20
         }).addTo(map);
 
         @isset($pasarExisting)
         var pasarLama = @json($pasarExisting);
         pasarLama.forEach(function(pasar) {
-            var lat = pasar.lokasi_gis.latitude;
-            var lng = pasar.lokasi_gis.longitude;
-            var existingMarker = L.marker([lat, lng]).addTo(map);
-            existingMarker.bindPopup(
-                "<b class='text-blue-deep'>" + pasar.nama_pasar + "</b><br>" +
-                "<small class='text-green-600 font-bold'>Sudah Terdaftar</small>"
-            );
+            if(pasar.lokasi_gis && (pasar.lokasi_gis.latitude || pasar.lokasi_gis.Latitude)) {
+                var lat = parseFloat(pasar.lokasi_gis.latitude || pasar.lokasi_gis.Latitude);
+                var lng = parseFloat(pasar.lokasi_gis.longitude || pasar.lokasi_gis.Longitude);
+                
+                var existingMarker = L.marker([lat, lng]).addTo(map);
+                existingMarker.bindPopup(
+                    "<b class='text-blue-deep'>" + pasar.nama_pasar + "</b><br>" +
+                    "<small class='text-green-600 font-bold'>Sudah Terdaftar</small>"
+                );
+            }
         });
         @endisset
 
@@ -211,6 +219,7 @@
             document.getElementById('longitude').value = lng;
         });
 
+        // Ambil nilai lama jika ada validasi error
         var oldLat = document.getElementById('latitude').value;
         var oldLng = document.getElementById('longitude').value;
         
@@ -219,7 +228,11 @@
             map.setView([oldLat, oldLng], 15);
         }
         
-        setTimeout(function() { map.invalidateSize(); }, 100);
-    });
+        // Paksa resize
+        setTimeout(function() { map.invalidateSize(); }, 500);
+
+    } catch (e) {
+        console.error("Gagal load peta admin:", e);
+    }
 </script>
 @endsection

@@ -21,9 +21,18 @@ class PasarController extends Controller
         return view('admin.pasar.index', compact('pasar'));
     }
 
-    public function create()
+   public function create()
     {
-        $pasarExisting = PasarDesa::whereHas('lokasiGis')->with('lokasiGis')->get();
+        $pasarExistingRaw = PasarDesa::whereHas('lokasiGis')->with('lokasiGis')->get();
+        
+        // Ringkas data agar JSON tidak error di Blade
+        $pasarExisting = $pasarExistingRaw->map(function($p) {
+            return [
+                'nama_pasar' => $p->nama_pasar,
+                'lokasi_gis' => $p->lokasiGis
+            ];
+        });
+
         $jenisFasilitas = JenisFasilitas::all();
                                           
         return view('admin.pasar.create', compact('pasarExisting', 'jenisFasilitas')); 
@@ -103,11 +112,17 @@ class PasarController extends Controller
     {
         $pasar = PasarDesa::with(['lokasiGis', 'fasilitas'])->findOrFail($id);
         
-        // Perlu memanggil JenisFasilitas agar bisa ditampilkan di form edit
         $jenisFasilitas = JenisFasilitas::all();
         
-        // (Opsional) Jika form edit juga butuh menampilkan map marker pasar lain
-        $pasarExisting = PasarDesa::whereHas('lokasiGis')->with('lokasiGis')->where('id', '!=', $id)->get();
+        $pasarExistingRaw = PasarDesa::whereHas('lokasiGis')->with('lokasiGis')->where('id', '!=', $id)->get();
+        
+        // Ringkas data agar JSON tidak error di Blade
+        $pasarExisting = $pasarExistingRaw->map(function($p) {
+            return [
+                'nama_pasar' => $p->nama_pasar,
+                'lokasi_gis' => $p->lokasiGis
+            ];
+        });
 
         return view('admin.pasar.edit', compact('pasar', 'jenisFasilitas', 'pasarExisting'));
     }

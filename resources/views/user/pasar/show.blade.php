@@ -174,41 +174,61 @@
 @section('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            @if ($pasar->lokasiGis)
-                var lat = {{ $pasar->lokasiGis->latitude }};
-                var lng = {{ $pasar->lokasiGis->longitude }};
+        console.log("Mencoba load peta detail...");
+        
+        try {
+            // 1. Inisialisasi peta ke ID yang benar: 'detailMap'
+            var map = L.map('detailMap');
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+                 subdomains: 'abcd',
+                 maxZoom: 20
+            }).addTo(map);
 
-                var map = L.map('detailMap', {
-                    zoomControl: false
-                }).setView([lat, lng], 15);
+            // 2. Ambil data HANYA 1 PASAR dari Controller
+            var pasar = @json($pasar);
+            var lokasi = pasar.lokasi_gis || pasar.lokasiGis;
 
-                L.control.zoom({
-                    position: 'bottomright'
-                }).addTo(map);
+            // 3. Jika lokasi tersedia, buat 1 marker dan zoom ke titik tersebut
+            if (lokasi && (lokasi.latitude || lokasi.Latitude)) {
+                var lat = parseFloat(lokasi.latitude || lokasi.Latitude);
+                var lng = parseFloat(lokasi.longitude || lokasi.Longitude);
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap'
-                }).addTo(map);
+                // Set View (kamera) langsung fokus / zoom dekat ke pasar ini
+                map.setView([lat, lng], 15);
 
                 var customIcon = L.divIcon({
                     className: 'custom-div-icon',
-                    html: "<div style='background-color:#D4AF37; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid #1E3A8A; box-shadow: 0 4px 6px rgba(0,0,0,0.3);'><i class='fas fa-store' style='color:#1E3A8A; font-size:18px;'></i></div>",
-                    iconSize: [40, 40],
-                    iconAnchor: [20, 20]
+                    html: "<div style='background-color:#1E3A8A; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #D4AF37;'><i class='fas fa-store' style='color:white; font-size:14px;'></i></div>",
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
                 });
 
-                var marker = L.marker([lat, lng], {
-                    icon: customIcon
-                }).addTo(map);
-                marker.bindPopup(
-                        "<div class='font-bold text-center text-blue-deep'>{{ $pasar->nama_pasar }}</div>")
-                    .openPopup();
+                var marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
 
-                setTimeout(function() {
-                    map.invalidateSize();
-                }, 200);
-            @endif
-        });
+                // Popup yang langsung terbuka otomatis
+                marker.bindPopup(`
+                    <div class="p-1 text-center">
+                        <h4 class="font-bold text-blue-deep">${pasar.nama_pasar}</h4>
+                    </div>
+                `).openPopup();
+                
+            } else {
+                // Jika lokasi tidak disetting di database, beri tampilan default Indramayu
+                map.setView([-6.3275, 108.3249], 11);
+                console.warn("Titik lokasi belum diatur untuk pasar ini.");
+            }
+
+            // 4. Paksa resize untuk mencegah peta 0px atau kotak abu-abu
+            setTimeout(function(){ 
+                map.invalidateSize(); 
+            }, 500);
+
+            console.log("Peta Detail BERHASIL digambar!");
+            
+        } catch (error) {
+            console.error("GAGAL! Ada error di Leaflet:", error);
+        }
     </script>
 @endsection

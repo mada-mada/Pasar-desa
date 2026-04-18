@@ -19,10 +19,20 @@ class PasarController extends Controller
         }
         
         $Pasar = $query->get();
-        // Fetch 3 latest articles
-        $artikel = Artikel::latest()->take(3)->get();
         
-        return view('index', compact('Pasar', 'artikel'));
+        $dataPeta = $Pasar->map(function($p) {
+            return [
+                'id' => $p->id,
+                'nama_pasar' => $p->nama_pasar,
+                'alamat_lengkap' => $p->alamat_lengkap,
+                // Pastikan JSON di-decode agar tidak error di JavaScript
+                'lokasi_gis' => $p->lokasiGis
+            ];
+        });
+       
+        $artikel = Artikel::latest()->take(3)->get();
+       
+        return view('index', compact('Pasar', 'artikel', 'dataPeta'));
     }
 
     public function list(Request $request)
@@ -41,8 +51,10 @@ class PasarController extends Controller
 
     public function show($id)
     {
+        // Cukup panggil 1 pasar beserta relasinya
         $pasar = PasarDesa::with(['fasilitas', 'lokasiGis'])->findOrFail($id);
 
+        // Langsung lempar ke view, tidak perlu $dataPeta karena datanya cuma 1
         return view('user.pasar.show', compact('pasar'));
     }
 }

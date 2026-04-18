@@ -175,21 +175,27 @@
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    console.log("Inisialisasi Peta Edit Admin...");
+    try {
         var defaultLat = {{ $pasar->lokasiGis->latitude ?? -6.3275 }};
         var defaultLng = {{ $pasar->lokasiGis->longitude ?? 108.3249 }};
+        
         var map = L.map('map').setView([defaultLat, defaultLng], 14);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+        // Gunakan CartoDB
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap © CARTO',
+            subdomains: 'abcd',
+            maxZoom: 20
         }).addTo(map);
 
         @isset($pasarExisting)
         var pasarLama = @json($pasarExisting);
         pasarLama.forEach(function(pasarIt) {
-            if(pasarIt.lokasi_gis) {
-                var lat = pasarIt.lokasi_gis.latitude;
-                var lng = pasarIt.lokasi_gis.longitude;
+            if(pasarIt.lokasi_gis && (pasarIt.lokasi_gis.latitude || pasarIt.lokasi_gis.Latitude)) {
+                var lat = parseFloat(pasarIt.lokasi_gis.latitude || pasarIt.lokasi_gis.Latitude);
+                var lng = parseFloat(pasarIt.lokasi_gis.longitude || pasarIt.lokasi_gis.Longitude);
+                
                 var existingMarker = L.marker([lat, lng]).addTo(map);
                 existingMarker.bindPopup(
                     "<b class='text-blue-deep'>" + pasarIt.nama_pasar + "</b><br>" +
@@ -226,21 +232,26 @@
 
             if (newMarker) { map.removeLayer(newMarker); }
             newMarker = L.marker([lat, lng]).addTo(map);
-            newMarker.bindPopup("<span class='font-bold text-gold text-sm'>Lokasi Pasar Terpilih</span>").openPopup();
+            newMarker.bindPopup("<span class='font-bold text-gold text-sm'>Lokasi Baru Terpilih</span>").openPopup();
 
             document.getElementById('latitude').value = lat;
             document.getElementById('longitude').value = lng;
         });
 
+        // Set Marker Awal (Pasar yang sedang di-edit)
         var oldLat = document.getElementById('latitude').value;
         var oldLng = document.getElementById('longitude').value;
         
         if (oldLat && oldLng) {
             newMarker = L.marker([oldLat, oldLng]).addTo(map);
-            newMarker.bindPopup("<span class='font-bold text-gold text-sm'>Lokasi Pasar Saat Ini</span>").openPopup();
+            newMarker.bindPopup("<span class='font-bold text-blue-deep text-sm'>Lokasi Pasar Saat Ini</span>").openPopup();
         }
         
-        setTimeout(function() { map.invalidateSize(); }, 100);
-    });
+        // Paksa resize
+        setTimeout(function() { map.invalidateSize(); }, 500);
+
+    } catch (e) {
+        console.error("Gagal load peta edit admin:", e);
+    }
 </script>
 @endsection

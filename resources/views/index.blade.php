@@ -178,57 +178,63 @@
 @section('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        console.log("1. Eksekusi peta langsung (Bypass DOMContentLoaded)...");
+        
+        try {
+            // 1. Inisialisasi peta langsung
             var map = L.map('heroMap').setView([-6.3275, 108.3249], 11);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                 subdomains: 'abcd',
+                 maxZoom: 20
             }).addTo(map);
+            // 2. Pasang data marker kamu kembali
+            var dataPasar = @json($dataPeta);
 
-            var dataPasar = @json($Pasar);
-
-            if (dataPasar.length > 0) {
+            console.log("Data Pasar dari Server: ", dataPasar);
+            
+            if (dataPasar && dataPasar.length > 0) {
                 var bounds = [];
-
                 dataPasar.forEach(function(pasar) {
                     if (pasar.lokasi_gis && pasar.lokasi_gis.latitude) {
                         var lat = pasar.lokasi_gis.latitude;
                         var lng = pasar.lokasi_gis.longitude;
-
                         bounds.push([lat, lng]);
 
-                        // Custom marker icon using HTML
                         var customIcon = L.divIcon({
                             className: 'custom-div-icon',
-                            html: "<div style='background-color:#1E3A8A; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #D4AF37; box-shadow: 0 4px 6px rgba(0,0,0,0.3);'><i class='fas fa-store' style='color:white; font-size:14px;'></i></div>",
+                            html: "<div style='background-color:#1E3A8A; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #D4AF37;'><i class='fas fa-store' style='color:white; font-size:14px;'></i></div>",
                             iconSize: [30, 30],
                             iconAnchor: [15, 15]
                         });
 
-                        var marker = L.marker([lat, lng], {
-                            icon: customIcon
-                        }).addTo(map);
+                        var marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
 
-                        var popupContent = `
-                        <div class="p-1">
-                            <h4 class="font-bold text-blue-deep text-lg mb-1">${pasar.nama_pasar}</h4>
-                            <p class="text-xs text-gray-600 mb-2 border-b pb-2"><i class="fas fa-map-marker-alt text-gold"></i> ${pasar.alamat_lengkap}</p>
-                            <a href="/pasar/${pasar.id}" class="text-xs font-bold text-white bg-gold py-1 px-3 rounded shadow hover:bg-yellow-500 inline-block transition-colors">Lihat Detail</a>
-                        </div>
-                    `;
-
-                        marker.bindPopup(popupContent, {
-                            maxWidth: 250
-                        });
+                        marker.bindPopup(`
+                            <div class="p-1">
+                                <h4 class="font-bold text-blue-deep">${pasar.nama_pasar}</h4>
+                                <a href="/pasar/${pasar.id}" class="text-xs font-bold text-white bg-gold py-1 px-3 mt-2 rounded shadow inline-block">Lihat Detail</a>
+                            </div>
+                        `);
                     }
                 });
 
                 if (bounds.length > 0) {
-                    map.fitBounds(bounds, {
-                        padding: [50, 50]
-                    });
+                    map.fitBounds(bounds, { padding: [50, 50] });
                 }
             }
-        });
+
+            // 3. Paksa resize untuk mencegah peta 0px atau kotak abu-abu
+            setTimeout(function(){ 
+                map.invalidateSize(); 
+                console.log("2. Peta di-resize paksa.");
+            }, 500);
+
+            console.log("3. Peta BERHASIL digambar!");
+            
+        } catch (error) {
+            console.error("GAGAL! Ada error di Leaflet:", error);
+        }
     </script>
 @endsection
