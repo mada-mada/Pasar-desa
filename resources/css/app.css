@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -5,7 +6,622 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* ============================================
+   DESIGN SYSTEM – Elevated Neo-Utilitarian
+   Target: 15–40 Tahun | Pasar Desa Indramayu
+   ============================================ */
+
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* --- Typography --- */
+    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Outfit', ui-sans-serif, sans-serif;
+
+    /* --- Color Palette --- */
+    /* Background */
+    --color-surface-base: #fafafa;
+    --color-surface-card: #ffffff;
+    --color-surface-muted: #f1f5f9;
+
+    /* Primary (Jet Black / Slate) */
+    --color-primary: #0f172a;
+    --color-primary-light: #1e293b;
+
+    /* Accent Gold (Modern / Vibrant) */
+    --color-gold: #eab308;
+    --color-gold-light: #facc15;
+    --color-gold-dark: #ca8a04;
+    --color-gold-subtle: rgba(234, 179, 8, 0.12);
+
+    /* Electric Blue (Interaction) */
+    --color-blue: #2563eb;
+    --color-blue-dark: #1d4ed8;
+    --color-blue-subtle: rgba(37, 99, 235, 0.10);
+
+    /* Neutral */
+    --color-neutral-100: #f8fafc;
+    --color-neutral-200: #e2e8f0;
+    --color-neutral-400: #94a3b8;
+    --color-neutral-600: #475569;
+    --color-neutral-800: #1e293b;
+    --color-neutral-900: #0f172a;
+
+    /* --- Spacing / Radius --- */
+    --radius-card: 1.25rem;
+    --radius-pill: 9999px;
+    --radius-btn: 0.75rem;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #fafafa;
+    color: #0f172a;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   NAVIGATION – Glassmorphism Sticky Header
+   ============================================ */
+.navbar-glass {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(234, 179, 8, 0.2);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Active Nav Link Indicator */
+.nav-link {
+    position: relative;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.80);
+    transition: color 0.2s ease;
+    letter-spacing: 0.01em;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #eab308;
+    border-radius: 9999px;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-link:hover {
+    color: #facc15;
+}
+.nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* ============================================
+   FLOATING BOTTOM NAV (Mobile)
+   ============================================ */
+.bottom-nav {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 2rem);
+    max-width: 380px;
+    z-index: 999;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 1.5rem;
+    padding: 0.625rem 1rem;
+    border: 1px solid rgba(234, 179, 8, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255,255,255,0.04) inset;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.4rem 1rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.50);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.bottom-nav-item i {
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+}
+.bottom-nav-item:hover,
+.bottom-nav-item.active {
+    color: #facc15;
+    background: rgba(234, 179, 8, 0.12);
+}
+.bottom-nav-item:hover i,
+.bottom-nav-item.active i {
+    transform: translateY(-2px);
+}
+
+/* Bottom Nav Spacer (prevents content being hidden behind bar) */
+.bottom-nav-spacer {
+    height: 5.5rem;
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+.hero-gradient {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-gradient::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.hero-gradient::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: -5%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Search Bar */
+.search-bar-wrapper {
+    position: relative;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 1.1rem 9rem 1.1rem 3.5rem;
+    border-radius: 9999px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.20);
+    font-size: 1rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    color: #0f172a;
+    outline: none;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+.search-bar:focus {
+    box-shadow: 0 8px 40px rgba(234, 179, 8, 0.30), 0 0 0 3px rgba(234, 179, 8, 0.25);
+    transform: translateY(-1px);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+.search-btn {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    bottom: 5px;
+    padding: 0 1.5rem;
+    border-radius: 9999px;
+    background: #eab308;
+    color: #0f172a;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    letter-spacing: 0.02em;
+}
+.search-btn:hover {
+    background: #facc15;
+    transform: scale(1.03);
+}
+.search-btn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================
+   CARDS – Tactile & Soft Shadow
+   ============================================ */
+.pasar-card {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(15,23,42,0.05);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    will-change: transform;
+}
+.pasar-card:hover {
+    transform: translateY(-6px) scale(1.008);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+.pasar-card:active {
+    transform: scale(0.98);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+/* Card image with gradient overlay */
+.card-img-wrapper {
+    position: relative;
+    height: 13rem;
+    overflow: hidden;
+}
+.card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pasar-card:hover .card-img-wrapper img {
+    transform: scale(1.08);
+}
+/* Gradient fade on bottom of image for readability */
+.card-img-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.45), transparent);
+    pointer-events: none;
+}
+
+.card-img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Badge (Hari Pasaran) */
+.card-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    background: rgba(15, 23, 42, 0.80);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #facc15;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    text-transform: uppercase;
+}
+
+.card-body {
+    padding: 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s ease;
+}
+.pasar-card:hover .card-title {
+    color: #2563eb;
+}
+
+.card-desc {
+    font-size: 0.85rem;
+    color: #64748b;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0.9rem;
+    flex-grow: 1;
+}
+
+.card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0;
+}
+
+.card-meta-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+.card-meta-item i {
+    width: 1rem;
+    text-align: center;
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+/* Card Footer */
+.card-footer {
+    padding: 0.9rem 1.25rem;
+    border-top: 1px solid #f1f5f9;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+/* ============================================
+   CTA BUTTON – Primary
+   ============================================ */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.2rem;
+    border-radius: 0.6rem;
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    font-family: 'Outfit', sans-serif;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+}
+.btn-primary:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+    color: #facc15;
+}
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+.btn-gold {
+    background: #eab308;
+    color: #0f172a;
+}
+.btn-gold:hover {
+    background: #facc15;
+    color: #0f172a;
+}
+
+/* ============================================
+   SECTION HEADER
+   ============================================ */
+.section-heading {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+.section-heading .accent {
+    color: #2563eb;
+}
+.section-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #eab308;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.section-eyebrow::before {
+    content: '';
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    background: #eab308;
+    border-radius: 9999px;
+}
+
+/* ============================================
+   SKELETON LOADER (Map / Image Placeholders)
+   ============================================ */
+@keyframes shimmer {
+    0% { background-position: -600px 0; }
+    100% { background-position: 600px 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+    background-size: 1200px 100%;
+    animation: shimmer 1.6s infinite linear;
+    border-radius: 0.5rem;
+}
+
+/* ============================================
+   MAP FLOATING TOGGLE (Mobile)
+   ============================================ */
+.map-toggle-fab {
+    position: fixed;
+    bottom: 6.5rem;
+    right: 1.1rem;
+    z-index: 99;
+    background: #0f172a;
+    color: #facc15;
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    border-radius: 1rem;
+    padding: 0.75rem 1.1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+}
+.map-toggle-fab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.4);
+    color: #facc15;
+}
+.map-toggle-fab:active {
+    transform: scale(0.96);
+}
+
+/* ============================================
+   ARTICLE CARDS
+   ============================================ */
+.article-card {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
+}
+.article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+}
+.article-card:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer-modern {
+    background: #0f172a;
+    color: #94a3b8;
+    border-top: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: #ffffff;
+    border-radius: 1.5rem;
+    border: 1px dashed #e2e8f0;
+}
+.empty-state-icon {
+    font-size: 3.5rem;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+}
+.empty-state-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+.empty-state-desc {
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+.text-gold { color: #eab308; }
+.bg-gold { background-color: #eab308; }
+.border-gold { border-color: #eab308; }
+.text-electric-blue { color: #2563eb; }
+
+/* Truncate multi-line */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Focus ring for accessibility */
+:focus-visible {
+    outline: 2px solid #eab308;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* Pagination overrides */
+nav[role="navigation"] .page-link,
+nav[role="navigation"] span,
+nav[role="navigation"] a {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    border-radius: 0.5rem;
 }

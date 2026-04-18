@@ -2,106 +2,153 @@
 
 @section('title', 'Daftar Pasar Desa - Pasar Desa Indramayu')
 
+@section('styles')
+    <style>
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.4,0,0.2,1) both; }
+    </style>
+@endsection
+
 @section('content')
-<!-- Hero Header Section -->
-<div class="relative bg-blue-deep pt-16 pb-20 border-b-4 border-gold z-10 overflow-hidden">
-    <div class="absolute inset-0">
-        <div class="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-blue-light opacity-20 blur-3xl"></div>
-        <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-gold opacity-10 blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-blue-900 to-transparent"></div>
-    </div>
-    
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
-            Pasar <span class="text-gold text-transparent bg-clip-text bg-gradient-to-r from-gold to-yellow-200">Desa</span>
+
+{{-- Hero --}}
+<section class="hero-gradient py-16 md:py-20 relative z-10 overflow-hidden">
+    <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="animate-fade-up inline-flex items-center justify-center gap-2 mb-4">
+            <span class="text-[#eab308] font-bold text-xs uppercase tracking-widest">Pasar Desa</span>
+            <span class="w-1 h-1 rounded-full bg-[#eab308] opacity-60"></span>
+            <span class="text-white/40 text-xs uppercase tracking-widest">Indramayu</span>
+        </div>
+
+        <h1 class="animate-fade-up font-black text-white leading-[1.1] tracking-tight mb-4"
+            style="font-size:clamp(2rem,7vw,3.5rem);">
+            Semua <span class="text-[#facc15]">Pasar</span><br>
+            <span class="text-white/70">dalam Satu Halaman</span>
         </h1>
-        <p class="mt-4 max-w-2xl text-xl text-blue-100 mx-auto mb-8">
+        <p class="animate-fade-up text-white/50 text-sm md:text-base max-w-xl mx-auto mb-8 leading-relaxed">
             Eksplorasi seluruh pasar desa di Kabupaten Indramayu, temukan lokasi dan fasilitas terbaik untuk kebutuhan Anda.
         </p>
 
-        <form action="{{ route('pasar.list') }}" method="GET" class="max-w-2xl mx-auto">
-            <div class="relative flex items-center shadow-lg rounded-full overflow-hidden border-2 border-transparent focus-within:border-gold transition-colors">
-                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                    <i class="fas fa-search text-gray-500 text-lg"></i>
+        {{-- Search bar --}}
+        <div class="animate-fade-up search-bar-wrapper px-4 sm:px-0">
+            <form action="{{ route('pasar.list') }}" method="GET" role="search">
+                <div style="position:relative;display:flex;align-items:center;">
+                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                    <input type="text" name="search" id="search-list"
+                        value="{{ request('search') }}"
+                        class="search-bar"
+                        placeholder="Cari pasar atau nama kecamatan..."
+                        autocomplete="off"
+                        aria-label="Cari pasar">
+                    <button type="submit" class="search-btn" aria-label="Mulai Cari">
+                        <span class="hidden sm:inline">Cari</span>
+                        <i class="fas fa-search sm:hidden"></i>
+                    </button>
                 </div>
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       class="w-full pl-12 pr-32 py-4 border-0 text-gray-900 focus:ring-0 text-lg outline-none" 
-                       placeholder="Cari pasar atau alamat...">
-                <button type="submit" class="absolute right-0 top-0 bottom-0 px-8 bg-gold hover:bg-yellow-500 text-blue-deep font-bold transition-colors">
-                    Cari
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
+</section>
 
-<!-- List Section -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+{{-- Main List Section --}}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
     @if(request('search'))
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900">Hasil Pencarian: <span class="text-blue-deep">"{{ request('search') }}"</span></h2>
-            <p class="text-gray-500 mt-1">Ditemukan {{ $pasarPage->total() }} pasar sesuai pencarian Anda.</p>
+        <div class="mb-6 flex items-center gap-3">
+            <div class="section-eyebrow"><span>Hasil Cari</span></div>
+            <h2 class="text-lg font-bold text-[#0f172a]">
+                "{{ request('search') }}"
+            </h2>
+            <span class="text-xs text-slate-400 font-medium bg-slate-100 px-2.5 py-1 rounded-full">
+                {{ $pasarPage->total() }} ditemukan
+            </span>
+            <a href="{{ route('pasar.list') }}"
+                class="ml-auto text-xs text-slate-400 hover:text-slate-600 underline font-medium">
+                Hapus filter
+            </a>
+        </div>
+    @else
+        <div class="mb-6">
+            <div class="section-eyebrow"><span>Semua Pasar</span></div>
+            <h2 class="section-heading">Daftar <span class="accent">Pasar Desa</span></h2>
         </div>
     @endif
 
     @if($pasarPage->isEmpty())
-        <div class="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <i class="fas fa-store-slash text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-xl font-bold text-gray-700">Pasar Tidak Ditemukan</h3>
-            <p class="text-gray-500 mt-2">Belum ada data pasar atau coba gunakan kata kunci pencarian yang berbeda.</p>
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-store-slash"></i>
+            </div>
+            <h3 class="empty-state-title">Pasar Tidak Ditemukan</h3>
+            <p class="empty-state-desc">Belum ada data pasar atau coba gunakan kata kunci yang berbeda.</p>
+            <a href="{{ route('pasar.list') }}" class="btn-primary mt-5 inline-flex">
+                <i class="fas fa-undo text-xs"></i> Tampilkan Semua
+            </a>
         </div>
     @else
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($pasarPage as $p)
-                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover border border-gray-100 flex flex-col h-full transform transition-all duration-300">
-                    <div class="relative h-48 overflow-hidden group">
+                <article class="pasar-card">
+                    <div class="card-img-wrapper">
                         @if($p->foto_pasar)
-                            <img src="{{ asset('storage/' . $p->foto_pasar) }}" alt="{{ $p->nama_pasar }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                            <img src="{{ asset('storage/' . $p->foto_pasar) }}" alt="{{ $p->nama_pasar }}" loading="lazy">
                         @else
-                            <div class="w-full h-full bg-blue-50 flex flex-col items-center justify-center text-blue-300">
-                                <i class="fas fa-store text-5xl mb-2"></i>
-                                <span>Tidak Ada Foto</span>
+                            <div class="card-img-placeholder">
+                                <i class="fas fa-store text-4xl"></i>
+                                <span>Foto Belum Tersedia</span>
                             </div>
                         @endif
-                        <div class="absolute top-4 right-4 bg-gold text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                            <i class="far fa-calendar-alt mr-1"></i> {{ $p->hari_pasaran }}
+                        <div class="card-badge">
+                            <i class="far fa-calendar-alt mr-1" aria-hidden="true"></i>
+                            {{ $p->hari_pasaran }}
                         </div>
                     </div>
-                    
-                    <div class="p-6 flex-grow flex flex-col">
-                        <h3 class="font-bold text-xl text-gray-900 mb-2 truncate card-title transition-colors">
-                            <a href="{{ route('pasar.show', $p->id) }}" class="hover:text-blue-deep">{{ $p->nama_pasar }}</a>
+
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <a href="{{ route('pasar.show', $p->id) }}" class="hover:text-[#2563eb] transition-colors">
+                                {{ $p->nama_pasar }}
+                            </a>
                         </h3>
-                        <p class="text-gray-500 text-sm mb-4 line-clamp-2">{{ $p->deskripsi }}</p>
-                        
-                        <div class="space-y-2 mt-auto">
-                            <div class="flex items-start text-sm text-gray-600">
-                                <i class="fas fa-map-marker-alt w-5 text-gold mt-1"></i>
-                                <span class="line-clamp-1">{{ $p->alamat_lengkap }}</span>
+                        @if($p->deskripsi)
+                            <p class="card-desc">{{ $p->deskripsi }}</p>
+                        @endif
+                        <div class="card-meta">
+                            <div class="card-meta-item">
+                                <i class="fas fa-map-marker-alt text-[#eab308]" aria-hidden="true"></i>
+                                <span class="line-clamp-2">{{ $p->alamat_lengkap }}</span>
                             </div>
-                            <div class="flex items-center text-sm text-gray-600">
-                                <i class="far fa-clock w-5 text-blue-light"></i>
+                            <div class="card-meta-item">
+                                <i class="far fa-clock text-[#2563eb]" aria-hidden="true"></i>
                                 <span>{{ $p->jam_operasional }}</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 mt-auto flex justify-between items-center">
-                        <div class="text-xs text-gray-500">
-                            <i class="fas fa-box-open mr-1"></i> <strong>{{ $p->fasilitas->count() }}</strong> Fasilitas Terdata
-                        </div>
-                        <a href="{{ route('pasar.show', $p->id) }}" class="text-blue-deep font-bold text-sm hover:text-gold transition-colors flex items-center">
-                            Lihat Detail <i class="fas fa-arrow-right ml-1"></i>
+
+                    <div class="card-footer">
+                        <span class="text-xs text-slate-400 font-medium">
+                            <i class="fas fa-box-open text-[#eab308] mr-1" aria-hidden="true"></i>
+                            {{ $p->fasilitas->count() }} fasilitas
+                        </span>
+                        <a href="{{ route('pasar.show', $p->id) }}" class="btn-primary text-xs px-3 py-1.5">
+                            Detail <i class="fas fa-arrow-right text-[10px]" aria-hidden="true"></i>
                         </a>
                     </div>
-                </div>
+                </article>
             @endforeach
         </div>
 
-        <!-- Pagination -->
-        <div class="mt-12 flex justify-center">
-            {{ $pasarPage->withQueryString()->links() }}
-        </div>
+        {{-- Pagination --}}
+        @if($pasarPage->hasPages())
+            <div class="mt-10 flex justify-center">
+                {{ $pasarPage->withQueryString()->links() }}
+            </div>
+        @endif
     @endif
-</div>
+
+</section>
+
 @endsection

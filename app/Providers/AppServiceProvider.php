@@ -25,9 +25,7 @@ class AppServiceProvider extends ServiceProvider
 
     // 2. PAKSA SEMUANYA TANPA SYARAT
     if (!empty($appUrl)) {
-        // Paksa skema jadi https
-        \Illuminate\Support\Facades\URL::forceScheme('https');
-        
+        // Paksa skema jadi http
         // Paksa root URL jadi https://ctk3gzc4-8000.asse.devtunnels.ms
         \Illuminate\Support\Facades\URL::forceRootUrl($appUrl);
     }
