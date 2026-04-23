@@ -1,362 +1,376 @@
 @extends('layouts.user')
 
 @section('title', 'Beranda - Pasar Desa Indramayu')
+@section('meta_description', 'Temukan pasar desa di Indramayu berdasarkan hari buka, lokasi, fasilitas, dan rute tercepat dari satu portal.')
 
 @section('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        /* Leaflet popup custom style */
-        .leaflet-popup-content-wrapper {
-            border-radius: 1rem;
-            padding: 0;
-            box-shadow: 0 8px 32px rgba(15, 23, 42, 0.18);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-        }
-        .leaflet-popup-content { margin: 0; }
-        .leaflet-popup-tip { background: white; }
-
-        /* Hero title animation */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(24px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-up {
-            animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
-        }
-        .animate-fade-up-delay-1 { animation-delay: 0.15s; }
-        .animate-fade-up-delay-2 { animation-delay: 0.3s; }
 
-        /* Map section */
+        .animate-fade-up { animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; }
+        .animate-fade-up-delay-1 { animation-delay: 0.12s; }
+        .animate-fade-up-delay-2 { animation-delay: 0.24s; }
+
+        .hero-noise::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.12;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.16) 0, transparent 24%),
+                radial-gradient(circle at 80% 30%, rgba(250,204,21,0.16) 0, transparent 26%),
+                radial-gradient(circle at 50% 80%, rgba(37,99,235,0.2) 0, transparent 25%);
+            mix-blend-mode: screen;
+        }
+
         #heroMap {
-            z-index: 10;
-            border-radius: 1.25rem;
             width: 100%;
             height: 100%;
+            min-height: 420px;
         }
-        .map-container-hidden { display: none; }
-        .map-container-visible { display: block; animation: fadeUp 0.4s ease both; }
+
+        @media (min-width: 768px) {
+            #heroMap {
+                min-height: 500px;
+            }
+        }
     </style>
 @endsection
 
 @section('content')
-
-{{-- ============================================
-     HERO SECTION
-     ============================================ --}}
-<section class="hero-gradient py-16 md:py-24 relative z-10">
-    <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-
-        {{-- Eyebrow --}}
-        <div class="animate-fade-up inline-flex items-center justify-center gap-2 mb-5">
-            <span class="text-[#eab308] font-bold text-xs uppercase tracking-widest">
-                Kabupaten Indramayu
-            </span>
-            <span class="w-1.5 h-1.5 rounded-full bg-[#eab308] opacity-60"></span>
-            <span class="text-white/50 text-xs uppercase tracking-widest">{{ now()->translatedFormat('l, d F Y') }}</span>
-        </div>
-
-        {{-- Main Title --}}
-        <h1 class="animate-fade-up animate-fade-up-delay-1 font-black text-white leading-[1.1] tracking-tight mb-5"
-            style="font-size: clamp(2.5rem, 8vw, 4.5rem);">
-            Temukan <span class="text-[#facc15] relative inline-block">
-                Pasarmu
-                <svg class="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M2 6 Q50 2 100 6 Q150 10 198 6" stroke="#eab308" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/>
-                </svg>
-            </span><br>
-            <span class="text-white/80">di Indramayu</span>
-        </h1>
-
-        {{-- Subtitle --}}
-        <p class="animate-fade-up animate-fade-up-delay-2 text-white/60 text-base md:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-            Lokasi, jadwal, dan fasilitas pasar desa — semua di satu tempat.
-        </p>
-
-        {{-- Search Bar --}}
-        <div class="animate-fade-up animate-fade-up-delay-2 search-bar-wrapper px-4 sm:px-0">
-            <form action="{{ route('pasar.index') }}" method="GET" role="search">
-                <div style="position:relative; display:flex; align-items:center;">
-                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
-                    <input
-                        type="text"
-                        name="search"
-                        id="search-input"
-                        value="{{ request('search') }}"
-                        class="search-bar"
-                        placeholder="Cari nama pasar atau kecamatan..."
-                        autocomplete="off"
-                        aria-label="Cari pasar">
-                    <button type="submit" class="search-btn" aria-label="Cari pasar">
-                        <span class="hidden sm:inline">Cari Pasar</span>
-                        <i class="fas fa-search sm:hidden"></i>
-                    </button>
+    <section class="hero-gradient hero-noise relative overflow-hidden py-16 md:py-24">
+        <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-5xl text-center">
+                <div class="animate-fade-up inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white/70">
+                    <span class="text-[#facc15]">Portal Pasar Desa</span>
+                    <span class="h-1 w-1 rounded-full bg-[#facc15]"></span>
+                    <span>{{ now()->locale('id')->translatedFormat('l, d F Y') }}</span>
                 </div>
-            </form>
-        </div>
 
-        {{-- Quick Stats --}}
-        <div class="animate-fade-up mt-8 flex items-center justify-center gap-6 text-white/50 text-xs">
-            <span class="flex items-center gap-1.5">
-                <i class="fas fa-store text-[#eab308]"></i>
-                <strong class="text-white font-bold text-sm">{{ $Pasar->count() }}</strong> Pasar Aktif
-            </span>
-            <span class="w-1 h-1 rounded-full bg-white/20"></span>
-            <span class="flex items-center gap-1.5">
-                <i class="fas fa-map-marker-alt text-[#eab308]"></i>
-                Seluruh Kecamatan
-            </span>
-        </div>
-    </div>
-</section>
+                <h1 class="animate-fade-up animate-fade-up-delay-1 mt-6 font-black leading-[1.02] tracking-tight text-white" style="font-size: clamp(2.6rem, 7vw, 5rem);">
+                    Cari pasar yang
+                    <span class="text-[#facc15]">buka hari ini</span>,
+                    cek fasilitas, lalu berangkat tanpa ragu.
+                </h1>
 
-{{-- ============================================
-     MAP SECTION (Desktop selalu tampil, Mobile via Toggle FAB)
-     ============================================ --}}
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 md:-mt-10 relative z-20 mb-10">
-    <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-        {{-- Map Header --}}
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
-            <div class="flex items-center gap-2 text-sm font-semibold text-slate-600">
-                <i class="fas fa-map text-[#eab308]"></i>
-                <span>Peta Pasar Desa</span>
-            </div>
-            <span class="text-xs text-slate-400 font-medium">{{ $Pasar->count() }} lokasi terpetakan</span>
-        </div>
-        {{-- Map --}}
-        <div id="heroMap" style="height: 380px; border-radius: 0;"></div>
-    </div>
-</section>
-
-{{-- ============================================
-     DAFTAR PASAR SECTION
-     ============================================ --}}
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-4">
-
-    {{-- Section Header --}}
-    <div class="flex justify-between items-end mb-8">
-        <div>
-            <div class="section-eyebrow">
-                <span>Jelajahi</span>
-            </div>
-            <h2 class="section-heading">
-                Daftar <span class="accent">Pasar</span> Desa
-            </h2>
-            @if(request('search'))
-                <p class="text-slate-500 mt-1.5 text-sm">
-                    Hasil pencarian untuk:
-                    <strong class="text-[#2563eb] font-semibold">"{{ request('search') }}"</strong>
-                    <a href="{{ route('pasar.index') }}" class="ml-2 text-xs text-slate-400 hover:text-slate-600 underline">Hapus filter</a>
+                <p class="animate-fade-up animate-fade-up-delay-2 mx-auto mt-5 max-w-3xl text-base leading-relaxed text-white/65 md:text-lg">
+                    Dirancang untuk pencarian cepat di mobile dan pembacaan data yang padat di desktop, lengkap dengan peta interaktif dan rute langsung ke pasar tujuan.
                 </p>
+
+                <div class="animate-fade-up animate-fade-up-delay-2 search-bar-wrapper mt-8 px-2 sm:px-0">
+                    <form action="{{ route('pasar.index') }}" method="GET" role="search">
+                        @if ($selectedDay)
+                            <input type="hidden" name="hari" value="{{ $selectedDay }}">
+                        @endif
+                        <div class="relative flex items-center">
+                            <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                            <input
+                                type="text"
+                                name="search"
+                                value="{{ request('search') }}"
+                                class="search-bar"
+                                placeholder="Cari nama pasar, alamat, atau kata kunci desa..."
+                                autocomplete="off"
+                                aria-label="Cari pasar">
+                            <button type="submit" class="search-btn" aria-label="Cari pasar">
+                                <span class="hidden sm:inline">Cari Pasar</span>
+                                <i class="fas fa-search sm:hidden"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="animate-fade-up mt-6 flex flex-wrap items-center justify-center gap-3">
+                    <a href="{{ route('pasar.index', ['hari' => $todayName]) }}" class="inline-flex items-center gap-2 rounded-full border border-[#facc15]/30 bg-[#facc15]/10 px-4 py-2 text-sm font-semibold text-[#fef08a]">
+                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                        {{ $quickStats['open_today'] }} pasar buka {{ strtolower($todayName) }}
+                    </a>
+                    <span class="text-sm text-white/45">Pilih hari operasional untuk menyaring daftar di bawah.</span>
+                </div>
+
+                <div class="mt-7 flex snap-x gap-3 overflow-x-auto pb-2 sm:justify-center">
+                    <a href="{{ route('pasar.index', array_filter(['search' => request('search')])) }}"
+                        class="filter-chip {{ !$selectedDay ? 'filter-chip--active' : '' }}">
+                        Semua Hari
+                    </a>
+                    <a href="{{ route('pasar.index', array_filter(['search' => request('search'), 'hari' => $todayName])) }}"
+                        class="filter-chip {{ $selectedDay === $todayName ? 'filter-chip--active' : '' }}">
+                        Hari Ini
+                    </a>
+                    @foreach ($days as $day)
+                        <a href="{{ route('pasar.index', array_filter(['search' => request('search'), 'hari' => $day])) }}"
+                            class="filter-chip {{ $selectedDay === $day ? 'filter-chip--active' : '' }}">
+                            {{ $day }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="mt-10 hidden gap-4 lg:grid lg:grid-cols-3">
+                <div class="quick-stat-card">
+                    <div class="quick-stat-label">Total Pasar</div>
+                    <div class="quick-stat-value" data-counter="{{ $quickStats['total_markets'] }}">0</div>
+                    <p class="quick-stat-desc">Lokasi pasar yang sudah terdata di portal.</p>
+                </div>
+                <div class="quick-stat-card">
+                    <div class="quick-stat-label">Jangkauan Kecamatan</div>
+                    <div class="quick-stat-value" data-counter="{{ $quickStats['total_districts'] }}">0</div>
+                    <p class="quick-stat-desc">Area yang sudah memiliki titik pasar terpetakan.</p>
+                </div>
+                <div class="quick-stat-card">
+                    <div class="quick-stat-label">Buka Hari Ini</div>
+                    <div class="quick-stat-value" data-counter="{{ $quickStats['open_today'] }}">0</div>
+                    <p class="quick-stat-desc">Pasar yang cocok untuk kebutuhan cepat hari ini.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="peta-pasar" class="section-anchor mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div class="map-shell">
+            <div class="map-shell__header">
+                <div>
+                    <div class="section-eyebrow mb-2"><span>Peta Interaktif</span></div>
+                    <h2 class="section-heading text-2xl md:text-3xl">Pasar <span class="accent">terpetakan</span></h2>
+                </div>
+                <span class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $Pasar->count() }} titik</span>
+            </div>
+
+            <div class="map-shell__body">
+                <aside class="map-sidebar">
+                    <p class="map-sidebar__caption">Klik pasar untuk fokus ke marker dan buka rute.</p>
+                    <div class="map-sidebar__list">
+                        @foreach ($Pasar as $market)
+                            <button
+                                type="button"
+                                class="map-sidebar__item"
+                                data-map-target="{{ $market->id }}"
+                                @disabled(!$market->lokasiGis)>
+                                <span>
+                                    <strong>{{ $market->nama_pasar }}</strong>
+                                    <small>{{ $market->district_name ?: $market->hari_pasaran }}</small>
+                                </span>
+                                <i class="fas fa-location-crosshairs" aria-hidden="true"></i>
+                            </button>
+                        @endforeach
+                    </div>
+                </aside>
+                <div class="map-canvas-wrap">
+                    <div id="heroMap"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-anchor mx-auto max-w-7xl px-4 pb-6 pt-2 sm:px-6 lg:px-8">
+        <div class="list-shell">
+            <div class="flex items-end justify-between gap-4">
+                <div>
+                    <div class="section-eyebrow"><span>Jelajahi</span></div>
+                    <h2 class="section-heading">Daftar <span class="accent">Pasar</span> Desa</h2>
+                    @if (request('search') || $selectedDay)
+                        <p class="mt-2 text-sm text-slate-500">
+                            Menampilkan
+                            <strong class="text-slate-800">{{ $Pasar->count() }}</strong>
+                            hasil
+                            @if (request('search'))
+                                untuk kata kunci <strong class="text-[#2563eb]">"{{ request('search') }}"</strong>
+                            @endif
+                            @if ($selectedDay)
+                                pada hari <strong class="text-[#eab308]">{{ $selectedDay }}</strong>
+                            @endif
+                        </p>
+                    @endif
+                </div>
+            </div>
+
+            @if ($Pasar->isEmpty())
+                <div class="empty-state mt-6">
+                    <div class="empty-state-icon"><i class="fas fa-store-slash"></i></div>
+                    <h3 class="empty-state-title">Pasar Tidak Ditemukan</h3>
+                    <p class="empty-state-desc">Coba hari lain atau gunakan kata kunci yang lebih umum.</p>
+                    <a href="{{ route('pasar.index') }}" class="btn-primary mt-5 inline-flex">
+                        <i class="fas fa-rotate-left text-xs"></i>
+                        Reset Filter
+                    </a>
+                </div>
+            @else
+                <div class="data-dense-grid mt-6">
+                    @foreach ($Pasar as $market)
+                        @include('user.pasar.partials.card', ['market' => $market])
+                    @endforeach
+                </div>
             @endif
         </div>
-        <a href="{{ route('pasar.list') }}"
-            class="hidden md:flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#2563eb] transition-colors">
-            Lihat Semua
-            <i class="fas fa-arrow-right text-xs"></i>
-        </a>
-    </div>
+    </section>
 
-    {{-- Grid Pasar --}}
-    @if($Pasar->isEmpty())
-        <div class="empty-state">
-            <div class="empty-state-icon">
-                <i class="fas fa-store-slash"></i>
+    @if ($artikel->isNotEmpty())
+        <section class="mt-8 border-t border-slate-200 bg-[#f8fafc] py-14">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="mb-8 flex items-end justify-between gap-4">
+                    <div>
+                        <div class="section-eyebrow"><span>Informasi</span></div>
+                        <h2 class="section-heading">Artikel <span class="accent">Terkini</span></h2>
+                        <p class="mt-1.5 text-sm text-slate-500">Liputan, panduan, dan sorotan pasar desa Indramayu.</p>
+                    </div>
+                    <a href="{{ route('artikel.index') }}" class="hidden items-center gap-2 text-sm font-bold text-slate-500 transition-colors hover:text-[#2563eb] md:flex">
+                        Semua Artikel
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    @foreach ($artikel as $art)
+                        <article class="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+                            <div class="h-48 w-full overflow-hidden bg-slate-100 sm:h-52">
+                                <a href="{{ route('artikel.show', $art->id) }}" class="block h-full w-full">
+                                    @if ($art->gambar_sampul_url)
+                                        <img src="{{ $art->gambar_sampul_url }}" alt="{{ $art->judul_artikel }}" loading="lazy" class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105">
+                                    @else
+                                        <div class="flex h-full w-full items-center justify-center">
+                                            <i class="fas fa-image text-5xl text-slate-300"></i>
+                                        </div>
+                                    @endif
+                                </a>
+                            </div>
+
+                            <div class="flex flex-1 flex-col p-5">
+                                <div class="mb-3 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#eab308]">
+                                    <span>{{ $art->tanggal_rilis->translatedFormat('d F Y') }}</span>
+                                    <span class="h-1 w-1 rounded-full bg-[#cbd5e1]"></span>
+                                    <span>{{ $art->reading_time }} menit baca</span>
+                                </div>
+                                
+                                <a href="{{ route('artikel.show', $art->id) }}" class="mb-2 block">
+                                    <h3 class="line-clamp-2 text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-[#2563eb]">
+                                        {{ $art->judul_artikel }}
+                                    </h3>
+                                </a>
+                                
+                                <p class="mb-5 line-clamp-2 flex-1 text-sm leading-relaxed text-slate-600">
+                                    {{ $art->excerpt }}
+                                </p>
+
+                                <div class="mt-auto border-t border-slate-100 pt-4">
+                                    <a href="{{ route('artikel.show', $art->id) }}" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#2563eb] transition-colors hover:text-[#eab308]">
+                                        Baca Selengkapnya
+                                        <i class="fas fa-chevron-right text-[10px]"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
             </div>
-            <h3 class="empty-state-title">Pasar Tidak Ditemukan</h3>
-            <p class="empty-state-desc">Coba gunakan kata kunci pencarian yang lain.</p>
-            <a href="{{ route('pasar.index') }}" class="btn-primary mt-5 inline-flex">
-                <i class="fas fa-undo text-xs"></i> Lihat Semua Pasar
-            </a>
-        </div>
-    @else
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($Pasar as $p)
-                <article class="pasar-card">
-                    {{-- Card Image --}}
-                    <div class="card-img-wrapper">
-                        @if($p->foto_pasar)
-                            <img src="{{ asset('storage/' . $p->foto_pasar) }}" alt="{{ $p->nama_pasar }}" loading="lazy">
-                        @else
-                            <div class="card-img-placeholder">
-                                <i class="fas fa-store text-4xl"></i>
-                                <span>Foto Belum Tersedia</span>
-                            </div>
-                        @endif
-                        <div class="card-badge">
-                            <i class="far fa-calendar-alt mr-1" aria-hidden="true"></i>
-                            {{ $p->hari_pasaran }}
-                        </div>
-                    </div>
-
-                    {{-- Card Body --}}
-                    <div class="card-body">
-                        <h3 class="card-title">{{ $p->nama_pasar }}</h3>
-                        @if($p->deskripsi)
-                            <p class="card-desc">{{ $p->deskripsi }}</p>
-                        @endif
-                        <div class="card-meta">
-                            <div class="card-meta-item">
-                                <i class="fas fa-map-marker-alt text-[#eab308]" aria-hidden="true"></i>
-                                <span class="line-clamp-2">{{ $p->alamat_lengkap }}</span>
-                            </div>
-                            <div class="card-meta-item">
-                                <i class="far fa-clock text-[#2563eb]" aria-hidden="true"></i>
-                                <span>{{ $p->jam_operasional }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Card Footer --}}
-                    <div class="card-footer">
-                        <span class="text-xs text-slate-400 font-medium">
-                            <i class="fas fa-box-open text-[#eab308] mr-1" aria-hidden="true"></i>
-                            {{ $p->fasilitas->count() }} fasilitas
-                        </span>
-                        <a href="{{ route('pasar.show', $p->id) }}" class="btn-primary text-xs px-3 py-1.5">
-                            Lihat Detail
-                            <i class="fas fa-arrow-right text-[10px]" aria-hidden="true"></i>
-                        </a>
-                    </div>
-                </article>
-            @endforeach
-        </div>
+        </section>
     @endif
-</section>
-
-{{-- ============================================
-     ARTIKEL TERKINI
-     ============================================ --}}
-@if(isset($artikel) && $artikel->count() > 0)
-<section class="bg-[#f8fafc] border-t border-slate-200 py-14 mt-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-end mb-8">
-            <div>
-                <div class="section-eyebrow"><span>Informasi</span></div>
-                <h2 class="section-heading">Artikel <span class="accent">Terkini</span></h2>
-                <p class="text-slate-500 mt-1.5 text-sm">Berita dan informasi seputar pasar desa Indramayu.</p>
-            </div>
-            <a href="{{ route('artikel.index') }}" class="hidden md:flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#2563eb] transition-colors">
-                Semua Artikel <i class="fas fa-arrow-right text-xs"></i>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            @foreach($artikel as $art)
-                <article class="article-card">
-                    <div class="relative h-44 overflow-hidden">
-                        @if($art->foto_thumbnail)
-                            <img src="{{ asset('storage/' . $art->foto_thumbnail) }}"
-                                class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                                alt="{{ $art->judul }}" loading="lazy">
-                        @else
-                            <div class="w-full h-full bg-slate-100 flex items-center justify-center">
-                                <i class="fas fa-image text-4xl text-slate-300"></i>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="text-gold text-xs font-bold uppercase tracking-widest mb-2">
-                            {{ \Carbon\Carbon::parse($art->tanggal_rilis)->translatedFormat('d F Y') }}
-                        </div>
-                        <a href="{{ route('artikel.show', $art->id) }}" class="block mb-2 group">
-                            <h3 class="font-bold text-[#0f172a] text-base leading-snug group-hover:text-[#2563eb] transition-colors line-clamp-2">
-                                {{ $art->judul }}
-                            </h3>
-                        </a>
-                        <p class="text-slate-500 text-sm line-clamp-3 flex-grow">
-                            {{ Str::limit(strip_tags($art->konten), 110) }}
-                        </p>
-                        <a href="{{ route('artikel.show', $art->id) }}"
-                            class="mt-4 text-xs font-bold text-[#2563eb] hover:text-[#eab308] transition-colors flex items-center gap-1 self-start">
-                            Baca Selengkapnya <i class="fas fa-chevron-right text-[9px]"></i>
-                        </a>
-                    </div>
-                </article>
-            @endforeach
-        </div>
-
-        <div class="mt-8 text-center md:hidden">
-            <a href="{{ route('artikel.index') }}" class="btn-primary inline-flex">
-                Lihat Semua Artikel
-            </a>
-        </div>
-    </div>
-</section>
-@endif
-
-{{-- Mobile bottom spacer (accounted for in layout) --}}
-
 @endsection
 
 @section('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    var map = L.map('heroMap', { zoomControl: true }).setView([-6.3275, 108.3249], 11);
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mapEl = document.getElementById('heroMap');
+            const counters = document.querySelectorAll('[data-counter]');
+            const dataPasar = @json($Pasar->values());
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
-        maxZoom: 18
-    }).addTo(map);
+            if (mapEl) {
+                const map = L.map(mapEl, { zoomControl: true }).setView([-6.3275, 108.3249], 11);
 
-    var dataPasar = @json($Pasar);
-    var bounds = [];
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
+                    maxZoom: 18
+                }).addTo(map);
 
-    dataPasar.forEach(function(pasar) {
-        if (pasar.lokasi_gis && pasar.lokasi_gis.latitude) {
-            var lat = pasar.lokasi_gis.latitude;
-            var lng = pasar.lokasi_gis.longitude;
-            bounds.push([lat, lng]);
+                const bounds = [];
+                const markers = new Map();
 
-            var customIcon = L.divIcon({
-                className: '',
-                html: `<div style="
-                    background:#0f172a;
-                    width:36px; height:36px;
-                    border-radius:50%;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    border:2.5px solid #eab308;
-                    box-shadow:0 4px 12px rgba(15,23,42,0.4);
-                    transition:transform 0.2s ease;
-                "><i class='fas fa-store' style='color:#facc15;font-size:14px;'></i></div>`,
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
-            });
+                dataPasar.forEach(function(pasar) {
+                    if (!pasar.lokasi_gis || !pasar.lokasi_gis.latitude || !pasar.lokasi_gis.longitude) {
+                        return;
+                    }
 
-            var marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+                    const lat = Number(pasar.lokasi_gis.latitude);
+                    const lng = Number(pasar.lokasi_gis.longitude);
+                    bounds.push([lat, lng]);
 
-            var fotoHtml = pasar.foto_pasar
-                ? `<img src="/storage/${pasar.foto_pasar}" style="width:100%;height:80px;object-fit:cover;border-radius:0.75rem 0.75rem 0 0;" loading="lazy">`
-                : `<div style="width:100%;height:60px;background:#f8fafc;border-radius:0.75rem 0.75rem 0 0;display:flex;align-items:center;justify-content:center;"><i class='fas fa-store' style='color:#cbd5e1;font-size:24px;'></i></div>`;
+                    const icon = L.divIcon({
+                        className: '',
+                        html: `<div style="background:#0f172a;width:40px;height:40px;border-radius:999px;display:flex;align-items:center;justify-content:center;border:2px solid #facc15;box-shadow:0 10px 18px rgba(15,23,42,.24);"><i class='fas fa-store' style='color:#facc15;font-size:14px;'></i></div>`,
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    });
 
-            var popupContent = `
-                <div style="font-family:'Outfit',sans-serif;width:220px;border-radius:1rem;overflow:hidden;">
-                    ${fotoHtml}
-                    <div style="padding:0.75rem;">
-                        <div style="font-size:0.7rem;color:#eab308;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;">
-                            ${pasar.hari_pasaran}
-                        </div>
-                        <h4 style="font-weight:800;font-size:0.9rem;color:#0f172a;margin:0 0 4px;">${pasar.nama_pasar}</h4>
-                        <p style="font-size:0.75rem;color:#64748b;margin:0 0 10px;line-height:1.4;">${pasar.alamat_lengkap}</p>
-                        <a href="/pasar/${pasar.id}" style="
-                            display:inline-block;
-                            background:#0f172a;color:#facc15;
-                            padding:6px 14px;border-radius:8px;
-                            font-size:0.75rem;font-weight:700;
-                            text-decoration:none;
-                        ">Lihat Detail →</a>
-                    </div>
-                </div>
-            `;
-            marker.bindPopup(popupContent, { maxWidth: 240, minWidth: 220 });
-        }
-    });
+                    const routeButton = pasar.maps_url
+                        ? `<a href="${pasar.maps_url}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;background:#eab308;color:#0f172a;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;text-decoration:none;">Rute <i class='fas fa-arrow-right'></i></a>`
+                        : '';
 
-    if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [40, 40] });
-    }
-});
-</script>
+                    const marker = L.marker([lat, lng], { icon }).addTo(map)
+                        .bindPopup(`
+                            <div style="width:240px;font-family:'Outfit',sans-serif;">
+                                <div style="margin-bottom:6px;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:${pasar.is_open_today ? '#16a34a' : '#94a3b8'};">
+                                    ${pasar.is_open_today ? 'Buka Hari Ini' : 'Terjadwal Hari Lain'}
+                                </div>
+                                <h3 style="margin:0 0 8px;font-size:15px;font-weight:800;color:#0f172a;">${pasar.nama_pasar}</h3>
+                                <p style="margin:0 0 6px;font-size:12px;color:#475569;">${pasar.hari_pasaran} • ${pasar.jam_operasional ?? 'Jam belum tersedia'}</p>
+                                <p style="margin:0 0 12px;font-size:12px;line-height:1.5;color:#64748b;">${pasar.alamat_lengkap}</p>
+                                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                    <a href="/pasar/${pasar.id}" style="display:inline-flex;align-items:center;gap:8px;background:#0f172a;color:#fff;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;">Detail</a>
+                                    ${routeButton}
+                                </div>
+                            </div>
+                        `);
+
+                    markers.set(String(pasar.id), marker);
+                });
+
+                if (bounds.length) {
+                    map.fitBounds(bounds, { padding: [28, 28] });
+                }
+
+                document.querySelectorAll('[data-map-target]').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        const marker = markers.get(button.getAttribute('data-map-target'));
+                        if (!marker) return;
+                        map.flyTo(marker.getLatLng(), 15, { duration: 0.8 });
+                        marker.openPopup();
+                    });
+                });
+
+                setTimeout(function() { map.invalidateSize(); }, 200);
+            }
+
+            if (counters.length) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (!entry.isIntersecting) return;
+
+                        const target = Number(entry.target.dataset.counter || 0);
+                        const duration = 900;
+                        const start = performance.now();
+
+                        function tick(now) {
+                            const progress = Math.min((now - start) / duration, 1);
+                            entry.target.textContent = Math.round(target * progress).toLocaleString('id-ID');
+                            if (progress < 1) {
+                                requestAnimationFrame(tick);
+                            }
+                        }
+
+                        requestAnimationFrame(tick);
+                        observer.unobserve(entry.target);
+                    });
+                }, { threshold: 0.45 });
+
+                counters.forEach(function(counter) {
+                    observer.observe(counter);
+                });
+            }
+        });
+    </script>
 @endsection

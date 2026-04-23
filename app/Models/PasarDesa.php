@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PasarDesa extends Model
 {
@@ -21,6 +23,11 @@ class PasarDesa extends Model
         'foto_pasar',
     ];
 
+    public function getFotoPasarUrlAttribute(): ?string
+    {
+        return $this->resolvePublicImageUrl($this->foto_pasar);
+    }
+
     // Relasi One-to-Many: 1 Pasar memiliki banyak Fasilitas
     public function fasilitas()
     {
@@ -31,5 +38,22 @@ class PasarDesa extends Model
     public function lokasiGis()
     {
         return $this->hasOne(LokasiGis::class, 'id_pasar', 'id');
+    }
+
+    private function resolvePublicImageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://', '//'])) {
+            return $path;
+        }
+
+        if (Str::startsWith($path, ['/storage/', 'storage/'])) {
+            return asset(ltrim($path, '/'));
+        }
+
+        return Storage::disk('public')->url($path);
     }
 }
