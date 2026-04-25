@@ -17,15 +17,22 @@ class PasarController extends Controller
     {
         // Menambahkan eager loading untuk mencegah N+1 Query Problem
         $pasar = PasarDesa::with(['lokasiGis', 'fasilitas'])->orderBy('nama_pasar')->get();
-       return response()->json([
-        'message' => 'Berhasil mengambil data pasar',
-        'data' => $pasar
-        ], 200);
+       
+        return view('admin.pasar.index', compact('pasar'));
     }
 
-    public function create()
+   public function create()
     {
-        $pasarExisting = PasarDesa::whereHas('lokasiGis')->with('lokasiGis')->get();
+        $pasarExistingRaw = PasarDesa::whereHas('lokasiGis')->with('lokasiGis')->get();
+        
+        // Ringkas data agar JSON tidak error di Blade
+        $pasarExisting = $pasarExistingRaw->map(function($p) {
+            return [
+                'nama_pasar' => $p->nama_pasar,
+                'lokasi_gis' => $p->lokasiGis
+            ];
+        });
+
         $jenisFasilitas = JenisFasilitas::all();
                                           
         return view('admin.pasar.create', compact('pasarExisting', 'jenisFasilitas')); 
@@ -38,7 +45,8 @@ class PasarController extends Controller
             'nama_pasar' => 'required|string|max:100',
             'alamat_lengkap' => 'required|string',
             'deskripsi' => 'required|string',
-            'hari_pasaran' => 'required|string|max:50',
+            'hari_pasaran' => 'required|array|min:1',
+            'hari_pasaran.*' => 'string',
             'jam_operasional' => 'required|string|max:50',
             'foto_pasar' => 'nullable|image|max:2048',
             'latitude' => 'required|numeric',
@@ -60,6 +68,7 @@ class PasarController extends Controller
         try {
             // A. Simpan data Pasar Desa
             $pasarData = collect($validated)->except(['latitude', 'longitude', 'id_jenis_fasilitas', 'status_ketersediaan'])->toArray();
+            $pasarData['hari_pasaran'] = implode(', ', $request->hari_pasaran);
             $pasar = PasarDesa::create($pasarData);
 
             // B. Simpan data Koordinat Map
@@ -80,10 +89,8 @@ class PasarController extends Controller
 
             DB::commit();
 
-           return response()->json([
-                 'message' => 'Berhasil menambahkan pasar, fasilitas, dan lokasi!',
-                    'data' => $pasar
-                ], 201);
+            return redirect()->route('admin.pasar.index')
+                             ->with('success', 'Berhasil menambahkan pasar, fasilitas, dan lokasi!');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -100,22 +107,24 @@ class PasarController extends Controller
     public function show(string $id)
     {
         $pasar = PasarDesa::with(['fasilitas.jenisFasilitas', 'lokasiGis'])->findOrFail($id);
-        return response()->json([
-            'success' => true,
-            'message' => 'Detail Data Pasar',
-            'data'    => $pasar
-        ], 200);
+        return view('admin.pasar.create', compact('pasar'));
     }
 
     public function edit(string $id)
     {
         $pasar = PasarDesa::with(['lokasiGis', 'fasilitas'])->findOrFail($id);
         
-        // Perlu memanggil JenisFasilitas agar bisa ditampilkan di form edit
         $jenisFasilitas = JenisFasilitas::all();
         
-        // (Opsional) Jika form edit juga butuh menampilkan map marker pasar lain
-        $pasarExisting = PasarDesa::whereHas('lokasiGis')->with('lokasiGis')->where('id', '!=', $id)->get();
+        $pasarExistingRaw = PasarDesa::whereHas('lokasiGis')->with('lokasiGis')->where('id', '!=', $id)->get();
+        
+        // Ringkas data agar JSON tidak error di Blade
+        $pasarExisting = $pasarExistingRaw->map(function($p) {
+            return [
+                'nama_pasar' => $p->nama_pasar,
+                'lokasi_gis' => $p->lokasiGis
+            ];
+        });
 
         return view('admin.pasar.edit', compact('pasar', 'jenisFasilitas', 'pasarExisting'));
     }
@@ -124,67 +133,81 @@ class PasarController extends Controller
     {
         $pasar = PasarDesa::findOrFail($id);
 
-        $validated = $request->validate([
-            'nama_pasar' => 'required|string|max:100',
-            'alamat_lengkap' => 'required|string',
-            'deskripsi' => 'required|string',
-            'hari_pasaran' => 'required|string|max:50',
-            'jam_operasional' => 'required|string|max:50',
-            'foto_pasar' => 'nullable|image|max:2048',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'id_jenis_fasilitas' => 'required|array|min:1', 
+        // Simpan path foto lama sebelum apapun diubah
+        $fotoLama = $pasar->foto_pasar;
+
+        $request->validate([
+            'nama_pasar'           => 'required|string|max:100',
+            'alamat_lengkap'       => 'required|string',
+            'deskripsi'            => 'required|string',
+            'hari_pasaran'         => 'required|array|min:1',
+            'hari_pasaran.*'       => 'string',
+            'jam_operasional'      => 'required|string|max:50',
+            'foto_pasar'           => 'nullable|image|max:2048',
+            'latitude'             => 'required|numeric',
+            'longitude'            => 'required|numeric',
+            'id_jenis_fasilitas'   => 'required|array|min:1',
             'id_jenis_fasilitas.*' => 'required|exists:jenis_fasilitas,id',
-            'status_ketersediaan' => 'required|array|min:1',
-            'status_ketersediaan.*' => 'required|in:Tersedia,Tidak Ada,Rusak',
+            'status_ketersediaan'  => 'required|array|min:1',
+            'status_ketersediaan.*'=> 'required|in:Tersedia,Tidak Ada,Rusak',
         ]);
 
+        // Upload foto baru jika ada (di luar transaksi agar file tersedia)
         $fotoBaruPath = null;
         if ($request->hasFile('foto_pasar')) {
             $fotoBaruPath = $request->file('foto_pasar')->store('pasar', 'public');
-            $validated['foto_pasar'] = $fotoBaruPath;
         }
 
         DB::beginTransaction();
 
         try {
-            // A. Update Profil Pasar (kecuali relasi)
-            $pasarData = collect($validated)->except(['latitude', 'longitude', 'id_jenis_fasilitas', 'status_ketersediaan'])->toArray();
-            $pasar->update($pasarData);
+            // A. Update field pasar secara langsung (tidak pakai array agar aman)
+            $pasar->nama_pasar      = $request->nama_pasar;
+            $pasar->alamat_lengkap  = $request->alamat_lengkap;
+            $pasar->deskripsi       = $request->deskripsi;
+            $pasar->hari_pasaran    = implode(', ', $request->hari_pasaran);
+            $pasar->jam_operasional = $request->jam_operasional;
+
+            // Hanya ganti foto_pasar jika ada file baru yang diupload
+            if ($fotoBaruPath) {
+                $pasar->foto_pasar = $fotoBaruPath;
+            }
+
+            $pasar->save();
 
             // B. Update Lokasi GIS
             LokasiGis::updateOrCreate(
                 ['id_pasar' => $pasar->id],
                 [
-                    'latitude' => $validated['latitude'],
-                    'longitude' => $validated['longitude']
+                    'latitude'  => $request->latitude,
+                    'longitude' => $request->longitude,
                 ]
             );
 
-            // C. Update Fasilitas (Hapus yang lama, insert yang baru dari form)
+            // C. Update Fasilitas (hapus lama, insert baru)
             Fasilitas::where('id_pasar', $pasar->id)->delete();
-            
             foreach ($request->id_jenis_fasilitas as $index => $id_jenis) {
                 Fasilitas::create([
-                    'id_pasar' => $pasar->id,
-                    'id_jenis_fasilitas' => $id_jenis,
+                    'id_pasar'            => $pasar->id,
+                    'id_jenis_fasilitas'  => $id_jenis,
                     'status_ketersediaan' => $request->status_ketersediaan[$index],
                 ]);
             }
 
-            // Jika berhasil dan ada foto baru, hapus foto lama dari storage
-            if ($fotoBaruPath && $pasar->getOriginal('foto_pasar')) {
-                Storage::disk('public')->delete($pasar->getOriginal('foto_pasar'));
-            }
-
             DB::commit();
 
-            return redirect()->route('admin.pasar.show', $pasar->id)
-                             ->with('success', 'Pasar, Fasilitas, dan lokasi berhasil diupdate!');
+            // Hapus foto lama SETELAH commit berhasil
+            if ($fotoBaruPath && $fotoLama) {
+                Storage::disk('public')->delete($fotoLama);
+            }
+
+            return redirect()->route('admin.pasar.index')
+                             ->with('success', 'Pasar, fasilitas, dan lokasi berhasil diupdate!');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
+            // Hapus foto baru yang sudah terlanjur diupload jika transaksi gagal
             if ($fotoBaruPath && Storage::disk('public')->exists($fotoBaruPath)) {
                 Storage::disk('public')->delete($fotoBaruPath);
             }
@@ -218,10 +241,8 @@ class PasarController extends Controller
                 Storage::disk('public')->delete($fotoPath);
             }
 
-            return response()->json([
-                 'message' => 'Berhasil menghapus pasar, fasilitas, dan lokasi!',
-                    'data' => $pasar
-                ], 200);
+            return redirect()->route('admin.pasar.index')
+                             ->with('success', 'Berhasil menghapus pasar, fasilitas, dan lokasi!');
 
         } catch (\Exception $e) {
             DB::rollBack();

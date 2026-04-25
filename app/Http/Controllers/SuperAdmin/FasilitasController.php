@@ -11,12 +11,8 @@ class FasilitasController extends Controller
 {
     public function index()
     {
-        // Mengambil semua fasilitas beserta relasi pasar desa dan jenis fasilitasnya
         $fasilitas = JenisFasilitas::get();
-        return response()->json([
-            'message' => 'berhasil mengambil data fasilitas',
-            'data' => $fasilitas
-        ], 200);
+        return view('superadmin.fasilitas.index', compact('fasilitas'));
     }
 
     public function create()
@@ -36,28 +32,20 @@ class FasilitasController extends Controller
             'icon_fasilitas' => $request->icon_fasilitas,
         ]);
 
-        return response()->json([
-            'message' => 'Fasilitas berhasil disimpan!',
-        ], 201);
+        return redirect()->route('superadmin.fasilitas.index')
+                         ->with('success', 'Jenis Fasilitas berhasil ditambahkan!');
     }
 
     public function show($id)
     {
-        $fasilitas = JenisFasilitas::jenisFasilitas()->findOrFail($id);
-       return response()->json([
-            'success' => true,
-            'message' => 'Detail Data Fasilitas',
-            'data'    => $fasilitas
-        ], 200);
+        // Tidak diperlukan implementasi spesifik jika tidak ada web page detail untuk referensi dictionary ini
+        return redirect()->route('superadmin.fasilitas.index');
     }
 
     public function edit($id)
     {
         $fasilitas = JenisFasilitas::findOrFail($id);
-        return response()->json([
-            'message' => 'berhasil mengambil data fasilitas',
-            'data' => $fasilitas
-        ], 200);
+        return view('superadmin.fasilitas.edit', compact('fasilitas'));
     }
 
     public function update(Request $request, $id)
@@ -74,9 +62,8 @@ class FasilitasController extends Controller
             'icon_fasilitas' => $request->icon_fasilitas,
         ]);
 
-        return response()->json([
-            'message' => 'Fasilitas berhasil diperbarui!',
-        ], 200);
+        return redirect()->route('superadmin.fasilitas.index')
+                         ->with('success', 'Tipe Fasilitas berhasil diubah dan diperbarui!');
     }
 
     public function destroy($id)
@@ -84,9 +71,7 @@ class FasilitasController extends Controller
         $fasilitas = JenisFasilitas::findOrFail($id);
         $fasilitas->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Fasilitas berhasil dihapus oleh Super Admin.'
-        ], 200);
+        return redirect()->route('superadmin.fasilitas.index')
+                         ->with('success', 'Data Master Jenis Fasilitas berhasil dihapus sepenuhnya.');
     }
 }

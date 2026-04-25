@@ -11,15 +11,12 @@ class AdminController extends Controller
     public function index()
     {
         $admin = User::where('role', 'Admin')->get();
-        return response()->json([
-            'message' => 'berhasil mengambil data admin',
-            'data' => $admin
-        ], 200);
+        return view('superadmin.admin.index', compact('admin'));
     }
 
     public function create()
     {
-        return view('superadmin.admins.create');
+        return view('superadmin.admin.create');
     }
 
     public function store(Request $request)
@@ -32,23 +29,24 @@ class AdminController extends Controller
 
         User::create([
             'username' => $request->username,
-            'password' => $request->password, // Akan di-hash otomatis oleh model User
+            'password' => $request->password,
             'role' => 'Admin',
             'nama_lengkap' => $request->nama_lengkap,
         ]);
 
-        return response()->json([
-            'message' => 'Akun Admin berhasil ditambahkan',
-            ], 201);
+        return redirect()->route('superadmin.admin.index')->with('success', 'Akun Admin berhasil ditambahkan');
+    }
+
+    public function show($id)
+    {
+        // Not widely used for Admin account typically, but to satisfy interface
+        return redirect()->route('superadmin.admin.index');
     }
 
     public function edit($id)
     {
         $admin = User::findOrFail($id);
-        return response()->json([
-            'message' => 'berhasil mengambil data admin',
-            'data' => $admin
-        ], 200);
+        return view('superadmin.admin.edit', compact('admin'));
     }
 
     public function update(Request $request, $id)
@@ -65,15 +63,13 @@ class AdminController extends Controller
         $admin->nama_lengkap = $request->nama_lengkap;
         
         if ($request->filled('password')) {
+            // Password mutator on User model will hash it
             $admin->password = $request->password;
         }
         
         $admin->save();
 
-        return response()->json([
-            'message' => 'Akun Admin berhasil diperbarui',
-            'data' => $admin
-        ], 200);
+        return redirect()->route('superadmin.admin.index')->with('success', 'Data Akun Admin berhasil diperbarui');
     }
 
     public function destroy($id)
@@ -81,8 +77,6 @@ class AdminController extends Controller
         $admin = User::findOrFail($id);
         $admin->delete();
 
-        return response()->json([
-            'message' => 'Akun Admin berhasil dihapus'
-        ], 200);
+        return redirect()->route('superadmin.admin.index')->with('success', 'Akun Admin berhasil dihapus');
     }
 }

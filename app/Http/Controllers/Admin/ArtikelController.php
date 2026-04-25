@@ -11,18 +11,14 @@ use Illuminate\Support\Facades\Storage;
 class ArtikelController extends Controller
 {
     
-    public function index()
+    public function index(Request $request)
     {
        
         $artikel = Artikel::with('penulis')
                     ->orderBy('tanggal_rilis', 'desc')
                     ->get();
 
-       return response()->json([
-        'success' => true,
-        'message' => 'Detail Data Artikel',
-        'data'    => $artikel
-    ], 200);    
+        return view('admin.artikel.index', compact('artikel'));
     }
 
    
@@ -51,10 +47,7 @@ class ArtikelController extends Controller
        
         Artikel::create($validated);
 
-        // Redirect ke halaman index dengan pesan sukses
-        return response()->json([
-        'message' => 'Berhasil menambahkan artikel',
-        ], 200);
+        return redirect()->route('admin.artikel.index')->with('success', 'Artikel baru berhasil diterbitkan!');
     }
 
    
@@ -63,12 +56,7 @@ class ArtikelController extends Controller
         
         $artikel = Artikel::with('penulis')->findOrFail($id);
 
-        
-        return response()->json([
-        'success' => true,
-        'message' => 'Detail Data Artikel',
-        'data'    => $artikel
-      ], 200);
+        return view('admin.artikel.show', compact('artikel'));
     }
 
     
@@ -107,10 +95,7 @@ class ArtikelController extends Controller
       
         $artikel->update($validated);
 
-        // Redirect ke halaman show dengan pesan sukses
-        return response()->json([
-        'message' => 'Berhasil memperbarui artikel',
-        ], 200);
+        return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil diperbarui!');
     }
 
    
@@ -127,9 +112,6 @@ class ArtikelController extends Controller
         
         $artikel->delete();
 
-      
-        return response()->json([
-        'message' => 'Berhasil menghapus artikel',
-        ], 200);
+        return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil dihapus!');
     }
 }
