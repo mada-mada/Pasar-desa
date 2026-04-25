@@ -35,8 +35,8 @@
                         <span class="status-dot"></span>
                         {{ $pasar->is_open_today ? 'Buka Hari Ini' : 'Tidak Buka Hari Ini' }}
                     </span>
-                    <span class="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/75">
-                        {{ $pasar->hari_pasaran }}
+                    <span class="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/75" title="{{ $pasar->hari_pasaran }}">
+                        {{ $pasar->hari_pasaran_compact ?? $pasar->hari_pasaran }}
                     </span>
                     <span class="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold text-white/65">
                         {{ $pasar->jam_operasional ?: 'Jam operasional belum tersedia' }}
@@ -85,7 +85,7 @@
                         <div class="info-tile">
                             <span class="info-tile__icon"><i class="far fa-calendar-alt"></i></span>
                             <strong>Hari Operasional</strong>
-                            <p>{{ $pasar->hari_pasaran }}</p>
+                            <p title="{{ $pasar->hari_pasaran }}">{{ $pasar->hari_pasaran_compact ?? $pasar->hari_pasaran }}</p>
                         </div>
                         <div class="info-tile">
                             <span class="info-tile__icon"><i class="far fa-clock"></i></span>
@@ -244,7 +244,7 @@
                     L.marker([lat, lng], { icon }).addTo(map).bindPopup(`
                         <div style="font-family:'Outfit',sans-serif;">
                             <strong style="display:block;margin-bottom:4px;color:#0f172a;">${pasar.nama_pasar}</strong>
-                            <span style="font-size:12px;color:#64748b;">${pasar.hari_pasaran} • ${pasar.jam_operasional ?? 'Jam belum tersedia'}</span>
+                            <span style="font-size:12px;color:#64748b;">${pasar.hari_pasaran_compact ?? pasar.hari_pasaran} • ${pasar.jam_operasional ?? 'Jam belum tersedia'}</span>
                         </div>
                     `).openPopup();
                 } else {

@@ -45,7 +45,8 @@ class PasarController extends Controller
             'nama_pasar' => 'required|string|max:100',
             'alamat_lengkap' => 'required|string',
             'deskripsi' => 'required|string',
-            'hari_pasaran' => 'required|string|max:50',
+            'hari_pasaran' => 'required|array|min:1',
+            'hari_pasaran.*' => 'string',
             'jam_operasional' => 'required|string|max:50',
             'foto_pasar' => 'nullable|image|max:2048',
             'latitude' => 'required|numeric',
@@ -67,6 +68,7 @@ class PasarController extends Controller
         try {
             // A. Simpan data Pasar Desa
             $pasarData = collect($validated)->except(['latitude', 'longitude', 'id_jenis_fasilitas', 'status_ketersediaan'])->toArray();
+            $pasarData['hari_pasaran'] = implode(', ', $request->hari_pasaran);
             $pasar = PasarDesa::create($pasarData);
 
             // B. Simpan data Koordinat Map
@@ -138,7 +140,8 @@ class PasarController extends Controller
             'nama_pasar'           => 'required|string|max:100',
             'alamat_lengkap'       => 'required|string',
             'deskripsi'            => 'required|string',
-            'hari_pasaran'         => 'required|string|max:50',
+            'hari_pasaran'         => 'required|array|min:1',
+            'hari_pasaran.*'       => 'string',
             'jam_operasional'      => 'required|string|max:50',
             'foto_pasar'           => 'nullable|image|max:2048',
             'latitude'             => 'required|numeric',
@@ -162,7 +165,7 @@ class PasarController extends Controller
             $pasar->nama_pasar      = $request->nama_pasar;
             $pasar->alamat_lengkap  = $request->alamat_lengkap;
             $pasar->deskripsi       = $request->deskripsi;
-            $pasar->hari_pasaran    = $request->hari_pasaran;
+            $pasar->hari_pasaran    = implode(', ', $request->hari_pasaran);
             $pasar->jam_operasional = $request->jam_operasional;
 
             // Hanya ganti foto_pasar jika ada file baru yang diupload

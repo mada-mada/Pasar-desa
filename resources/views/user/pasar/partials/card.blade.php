@@ -10,11 +10,7 @@
         @endif
 
         <div class="card-badge-stack">
-            <span class="card-badge">
-                <i class="far fa-calendar-alt" aria-hidden="true"></i>
-                {{ $market->hari_pasaran }}
-            </span>
-            <span class="{{ $market->is_open_today ? 'status-badge-open' : 'status-badge-closed' }}">
+            <span class="card-status-badge {{ $market->is_open_today ? 'status-badge-open' : 'status-badge-closed' }}">
                 <span class="status-dot" aria-hidden="true"></span>
                 {{ $market->is_open_today ? 'Buka Hari Ini' : 'Tutup Hari Ini' }}
             </span>
@@ -45,6 +41,16 @@
         @if ($market->deskripsi)
             <p class="card-desc">{{ $market->deskripsi }}</p>
         @endif
+
+        <div class="card-schedule">
+            <div class="card-schedule__label">
+                <i class="far fa-calendar-alt" aria-hidden="true"></i>
+                <span>Hari Buka</span>
+            </div>
+            <p class="card-schedule__value" title="{{ $market->hari_pasaran }}">
+                {{ $market->hari_pasaran_compact ?? $market->hari_pasaran }}
+            </p>
+        </div>
 
         <div class="card-meta">
             <div class="card-meta-item">

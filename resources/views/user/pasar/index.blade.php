@@ -1,19 +1,36 @@
 @extends('layouts.user')
 
 @section('title', 'Beranda - Pasar Desa Indramayu')
-@section('meta_description', 'Temukan pasar desa di Indramayu berdasarkan hari buka, lokasi, fasilitas, dan rute tercepat dari satu portal.')
+@section('meta_description',
+    'Temukan pasar desa di Indramayu berdasarkan hari buka, lokasi, fasilitas, dan rute
+    tercepat dari satu portal.')
 
 @section('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .animate-fade-up { animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; }
-        .animate-fade-up-delay-1 { animation-delay: 0.12s; }
-        .animate-fade-up-delay-2 { animation-delay: 0.24s; }
+        .animate-fade-up {
+            animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        .animate-fade-up-delay-1 {
+            animation-delay: 0.12s;
+        }
+
+        .animate-fade-up-delay-2 {
+            animation-delay: 0.24s;
+        }
 
         .hero-noise::after {
             content: '';
@@ -22,9 +39,9 @@
             opacity: 0.12;
             pointer-events: none;
             background-image:
-                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.16) 0, transparent 24%),
-                radial-gradient(circle at 80% 30%, rgba(250,204,21,0.16) 0, transparent 26%),
-                radial-gradient(circle at 50% 80%, rgba(37,99,235,0.2) 0, transparent 25%);
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.16) 0, transparent 24%),
+                radial-gradient(circle at 80% 30%, rgba(250, 204, 21, 0.16) 0, transparent 26%),
+                radial-gradient(circle at 50% 80%, rgba(37, 99, 235, 0.2) 0, transparent 25%);
             mix-blend-mode: screen;
         }
 
@@ -46,20 +63,24 @@
     <section class="hero-gradient hero-noise relative overflow-hidden py-16 md:py-24">
         <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mx-auto max-w-5xl text-center">
-                <div class="animate-fade-up inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white/70">
+                <div
+                    class="animate-fade-up inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white/70">
                     <span class="text-[#facc15]">Portal Pasar Desa</span>
                     <span class="h-1 w-1 rounded-full bg-[#facc15]"></span>
                     <span>{{ now()->locale('id')->translatedFormat('l, d F Y') }}</span>
                 </div>
 
-                <h1 class="animate-fade-up animate-fade-up-delay-1 mt-6 font-black leading-[1.02] tracking-tight text-white" style="font-size: clamp(2.6rem, 7vw, 5rem);">
+                <h1 class="animate-fade-up animate-fade-up-delay-1 mt-6 font-black leading-[1.02] tracking-tight text-white"
+                    style="font-size: clamp(2.6rem, 7vw, 5rem);">
                     Cari pasar yang
                     <span class="text-[#facc15]">buka hari ini</span>,
                     cek fasilitas, lalu berangkat tanpa ragu.
                 </h1>
 
-                <p class="animate-fade-up animate-fade-up-delay-2 mx-auto mt-5 max-w-3xl text-base leading-relaxed text-white/65 md:text-lg">
-                    Dirancang untuk pencarian cepat di mobile dan pembacaan data yang padat di desktop, lengkap dengan peta interaktif dan rute langsung ke pasar tujuan.
+                <p
+                    class="animate-fade-up animate-fade-up-delay-2 mx-auto mt-5 max-w-3xl text-base leading-relaxed text-white/65 md:text-lg">
+                    Dirancang untuk pencarian cepat di mobile dan pembacaan data yang padat di desktop, lengkap dengan peta
+                    interaktif dan rute langsung ke pasar tujuan.
                 </p>
 
                 <div class="animate-fade-up animate-fade-up-delay-2 search-bar-wrapper mt-8 px-2 sm:px-0">
@@ -69,13 +90,8 @@
                         @endif
                         <div class="relative flex items-center">
                             <i class="fas fa-search search-icon" aria-hidden="true"></i>
-                            <input
-                                type="text"
-                                name="search"
-                                value="{{ request('search') }}"
-                                class="search-bar"
-                                placeholder="Cari nama pasar, alamat, atau kata kunci desa..."
-                                autocomplete="off"
+                            <input type="text" name="search" value="{{ request('search') }}" class="search-bar"
+                                placeholder="Cari nama pasar, alamat, atau kata kunci desa..." autocomplete="off"
                                 aria-label="Cari pasar">
                             <button type="submit" class="search-btn" aria-label="Cari pasar">
                                 <span class="hidden sm:inline">Cari Pasar</span>
@@ -86,7 +102,8 @@
                 </div>
 
                 <div class="animate-fade-up mt-6 flex flex-wrap items-center justify-center gap-3">
-                    <a href="{{ route('pasar.index', ['hari' => $todayName]) }}" class="inline-flex items-center gap-2 rounded-full border border-[#facc15]/30 bg-[#facc15]/10 px-4 py-2 text-sm font-semibold text-[#fef08a]">
+                    <a href="{{ route('pasar.index', ['hari' => $todayName]) }}"
+                        class="inline-flex items-center gap-2 rounded-full border border-[#facc15]/30 bg-[#facc15]/10 px-4 py-2 text-sm font-semibold text-[#fef08a]">
                         <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
                         {{ $quickStats['open_today'] }} pasar buka {{ strtolower($todayName) }}
                     </a>
@@ -138,7 +155,8 @@
                     <div class="section-eyebrow mb-2"><span>Peta Interaktif</span></div>
                     <h2 class="section-heading text-2xl md:text-3xl">Pasar <span class="accent">terpetakan</span></h2>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $Pasar->count() }} titik</span>
+                <span class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $Pasar->count() }}
+                    titik</span>
             </div>
 
             <div class="map-shell__body">
@@ -146,10 +164,7 @@
                     <p class="map-sidebar__caption">Klik pasar untuk fokus ke marker dan buka rute.</p>
                     <div class="map-sidebar__list">
                         @foreach ($Pasar as $market)
-                            <button
-                                type="button"
-                                class="map-sidebar__item"
-                                data-map-target="{{ $market->id }}"
+                            <button type="button" class="map-sidebar__item" data-map-target="{{ $market->id }}"
                                 @disabled(!$market->lokasiGis)>
                                 <span>
                                     <strong>{{ $market->nama_pasar }}</strong>
@@ -218,7 +233,8 @@
                         <h2 class="section-heading">Artikel <span class="accent">Terkini</span></h2>
                         <p class="mt-1.5 text-sm text-slate-500">Liputan, panduan, dan sorotan pasar desa Indramayu.</p>
                     </div>
-                    <a href="{{ route('artikel.index') }}" class="hidden items-center gap-2 text-sm font-bold text-slate-500 transition-colors hover:text-[#2563eb] md:flex">
+                    <a href="{{ route('artikel.index') }}"
+                        class="hidden items-center gap-2 text-sm font-bold text-slate-500 transition-colors hover:text-[#2563eb] md:flex">
                         Semua Artikel
                         <i class="fas fa-arrow-right text-xs"></i>
                     </a>
@@ -226,11 +242,14 @@
 
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                     @foreach ($artikel as $art)
-                        <article class="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+                        <article
+                            class="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
                             <div class="h-48 w-full overflow-hidden bg-slate-100 sm:h-52">
                                 <a href="{{ route('artikel.show', $art->id) }}" class="block h-full w-full">
                                     @if ($art->gambar_sampul_url)
-                                        <img src="{{ $art->gambar_sampul_url }}" alt="{{ $art->judul_artikel }}" loading="lazy" class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105">
+                                        <img src="{{ $art->gambar_sampul_url }}" alt="{{ $art->judul_artikel }}"
+                                            loading="lazy"
+                                            class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105">
                                     @else
                                         <div class="flex h-full w-full items-center justify-center">
                                             <i class="fas fa-image text-5xl text-slate-300"></i>
@@ -240,24 +259,27 @@
                             </div>
 
                             <div class="flex flex-1 flex-col p-5">
-                                <div class="mb-3 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#eab308]">
+                                <div
+                                    class="mb-3 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#eab308]">
                                     <span>{{ $art->tanggal_rilis->translatedFormat('d F Y') }}</span>
                                     <span class="h-1 w-1 rounded-full bg-[#cbd5e1]"></span>
                                     <span>{{ $art->reading_time }} menit baca</span>
                                 </div>
-                                
+
                                 <a href="{{ route('artikel.show', $art->id) }}" class="mb-2 block">
-                                    <h3 class="line-clamp-2 text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-[#2563eb]">
+                                    <h3
+                                        class="line-clamp-2 text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-[#2563eb]">
                                         {{ $art->judul_artikel }}
                                     </h3>
                                 </a>
-                                
+
                                 <p class="mb-5 line-clamp-2 flex-1 text-sm leading-relaxed text-slate-600">
                                     {{ $art->excerpt }}
                                 </p>
 
                                 <div class="mt-auto border-t border-slate-100 pt-4">
-                                    <a href="{{ route('artikel.show', $art->id) }}" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#2563eb] transition-colors hover:text-[#eab308]">
+                                    <a href="{{ route('artikel.show', $art->id) }}"
+                                        class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#2563eb] transition-colors hover:text-[#eab308]">
                                         Baca Selengkapnya
                                         <i class="fas fa-chevron-right text-[10px]"></i>
                                     </a>
@@ -280,7 +302,9 @@
             const dataPasar = @json($Pasar->values());
 
             if (mapEl) {
-                const map = L.map(mapEl, { zoomControl: true }).setView([-6.3275, 108.3249], 11);
+                const map = L.map(mapEl, {
+                    zoomControl: true
+                }).setView([-6.3275, 108.3249], 11);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
@@ -306,11 +330,13 @@
                         iconAnchor: [20, 20]
                     });
 
-                    const routeButton = pasar.maps_url
-                        ? `<a href="${pasar.maps_url}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;background:#eab308;color:#0f172a;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;text-decoration:none;">Rute <i class='fas fa-arrow-right'></i></a>`
-                        : '';
+                    const routeButton = pasar.maps_url ?
+                        `<a href="${pasar.maps_url}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;background:#eab308;color:#0f172a;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;text-decoration:none;">Rute <i class='fas fa-arrow-right'></i></a>` :
+                        '';
 
-                    const marker = L.marker([lat, lng], { icon }).addTo(map)
+                    const marker = L.marker([lat, lng], {
+                            icon
+                        }).addTo(map)
                         .bindPopup(`
                             <div style="width:240px;font-family:'Outfit',sans-serif;">
                                 <div style="margin-bottom:6px;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:${pasar.is_open_today ? '#16a34a' : '#94a3b8'};">
@@ -330,19 +356,25 @@
                 });
 
                 if (bounds.length) {
-                    map.fitBounds(bounds, { padding: [28, 28] });
+                    map.fitBounds(bounds, {
+                        padding: [28, 28]
+                    });
                 }
 
                 document.querySelectorAll('[data-map-target]').forEach(function(button) {
                     button.addEventListener('click', function() {
                         const marker = markers.get(button.getAttribute('data-map-target'));
                         if (!marker) return;
-                        map.flyTo(marker.getLatLng(), 15, { duration: 0.8 });
+                        map.flyTo(marker.getLatLng(), 15, {
+                            duration: 0.8
+                        });
                         marker.openPopup();
                     });
                 });
 
-                setTimeout(function() { map.invalidateSize(); }, 200);
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 200);
             }
 
             if (counters.length) {
@@ -356,7 +388,8 @@
 
                         function tick(now) {
                             const progress = Math.min((now - start) / duration, 1);
-                            entry.target.textContent = Math.round(target * progress).toLocaleString('id-ID');
+                            entry.target.textContent = Math.round(target * progress).toLocaleString(
+                                'id-ID');
                             if (progress < 1) {
                                 requestAnimationFrame(tick);
                             }
@@ -365,7 +398,9 @@
                         requestAnimationFrame(tick);
                         observer.unobserve(entry.target);
                     });
-                }, { threshold: 0.45 });
+                }, {
+                    threshold: 0.45
+                });
 
                 counters.forEach(function(counter) {
                     observer.observe(counter);

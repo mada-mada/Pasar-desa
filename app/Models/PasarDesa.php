@@ -11,6 +11,8 @@ class PasarDesa extends Model
 {
     use HasFactory;
 
+    private const ORDERED_DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
     protected $table = 'pasar_desa';
 
     protected $fillable = [
@@ -26,6 +28,47 @@ class PasarDesa extends Model
     public function getFotoPasarUrlAttribute(): ?string
     {
         return $this->resolvePublicImageUrl($this->foto_pasar);
+    }
+
+    public function getHariPasaranCompactAttribute(): ?string
+    {
+        $days = $this->normalizedMarketDays($this->hari_pasaran);
+
+        if ($days === []) {
+            return null;
+        }
+
+        if (count($days) === count(self::ORDERED_DAYS)) {
+            return 'Senin - Minggu';
+        }
+
+        $indexes = array_values(array_map(
+            fn (string $day) => array_search($day, self::ORDERED_DAYS, true),
+            $days
+        ));
+
+        sort($indexes);
+
+        $isSequential = count($indexes) > 2;
+
+        if ($isSequential) {
+            for ($i = 1; $i < count($indexes); $i++) {
+                if ($indexes[$i] !== $indexes[$i - 1] + 1) {
+                    $isSequential = false;
+                    break;
+                }
+            }
+        }
+
+        if ($isSequential) {
+            return self::ORDERED_DAYS[$indexes[0]] . ' - ' . self::ORDERED_DAYS[$indexes[array_key_last($indexes)]];
+        }
+
+        if (count($days) === 2) {
+            return implode(' & ', $days);
+        }
+
+        return implode(', ', $days);
     }
 
     // Relasi One-to-Many: 1 Pasar memiliki banyak Fasilitas
@@ -55,5 +98,19 @@ class PasarDesa extends Model
         }
 
         return Storage::disk('public')->url($path);
+    }
+
+    private function normalizedMarketDays(?string $marketDays): array
+    {
+        if (! $marketDays) {
+            return [];
+        }
+
+        $selectedDays = preg_split('/\s*,\s*/', $marketDays, -1, PREG_SPLIT_NO_EMPTY);
+
+        return array_values(array_filter(
+            self::ORDERED_DAYS,
+            fn (string $day) => in_array($day, $selectedDays, true)
+        ));
     }
 }

@@ -54,12 +54,44 @@
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Hari Pasaran <span class="text-red-500">*</span></label>
-                        <input type="text" name="hari_pasaran" value="{{ old('hari_pasaran', $pasar->hari_pasaran) }}" required placeholder="Contoh: Senin & Kamis" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold input-interactive outline-none transition-all">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Hari Pasaran <span class="text-red-500">*</span></label>
+                        @php
+                            $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+                            $savedHari = preg_split('/\s*,\s*/', (string) $pasar->hari_pasaran, -1, PREG_SPLIT_NO_EMPTY);
+                            $oldHari = old('hari_pasaran', $savedHari);
+                            $hariChunks = array_chunk($hariList, 4);
+
+                            if (!is_array($oldHari)) {
+                                $oldHari = preg_split('/\s*,\s*/', (string) $oldHari, -1, PREG_SPLIT_NO_EMPTY);
+                            }
+                        @endphp
+                        <div class="rounded-xl border border-gray-200 bg-gray-50/80 p-3 sm:p-4">
+                            <div class="space-y-2">
+                                @foreach($hariChunks as $chunk)
+                                    <div class="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                                        @foreach($chunk as $hari)
+                                            <label class="group flex min-h-[52px] items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-medium text-gray-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-gold/60 hover:bg-amber-50/60">
+                                                <input type="checkbox" name="hari_pasaran[]" value="{{ $hari }}"
+                                                       class="h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
+                                                       {{ in_array($hari, $oldHari) ? 'checked' : '' }}>
+                                                <span class="leading-tight">{{ $hari }}</span>
+                                            </label>
+                                        @endforeach
+                                        @if(count($chunk) < 4)
+                                            @for($i = count($chunk); $i < 4; $i++)
+                                                <div class="hidden lg:block"></div>
+                                            @endfor
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Jam Operasional <span class="text-red-500">*</span></label>
                         <input type="text" name="jam_operasional" value="{{ old('jam_operasional', $pasar->jam_operasional) }}" required placeholder="Contoh: 05:00 - 12:00" 
@@ -144,7 +176,7 @@
             
             <div id="map" class="w-full h-80 rounded-xl mb-4 relative z-0 border border-gray-200 flex-grow"></div>
             
-            <div class="grid grid-cols-2 gap-4 mt-auto">
+            <div class="grid grid-cols-1 gap-4 mt-auto sm:grid-cols-2">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase">Latitude</label>
                     <input type="text" name="latitude" id="latitude" value="{{ old('latitude', $pasar->lokasiGis->latitude ?? '') }}" readonly required
@@ -160,9 +192,9 @@
     </div>
 
     <!-- Actions -->
-    <div class="mt-8 flex justify-end space-x-3 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <a href="{{ route('admin.pasar.index') }}" class="px-6 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium transition-colors">Batal</a>
-        <button type="submit" class="btn-blue px-6 py-2 rounded-lg font-medium shadow-md flex items-center">
+    <div class="mt-8 flex flex-col-reverse gap-3 bg-white p-4 rounded-xl shadow-sm border border-gray-100 sm:flex-row sm:justify-end">
+        <a href="{{ route('admin.pasar.index') }}" class="px-6 py-2 text-center rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium transition-colors">Batal</a>
+        <button type="submit" class="btn-blue px-6 py-2 rounded-lg font-medium shadow-md flex items-center justify-center">
             <i class="fas fa-save mr-2"></i> Simpan Perubahan
         </button>
     </div>
