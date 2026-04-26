@@ -1,7 +1,8 @@
 @extends('layouts.user')
 
 @section('title', 'Daftar Pasar Desa - Pasar Desa Indramayu')
-@section('meta_description', 'Jelajahi seluruh pasar desa di Indramayu dengan filter hari buka, kecamatan, mode grid atau tabel, dan pengurutan cepat.')
+@section('meta_description', 'Jelajahi seluruh pasar desa di Indramayu dengan filter hari buka, kecamatan, mode grid
+    atau tabel, dan pengurutan cepat.')
 
 @section('context_bar')
     <div class="context-bar">
@@ -16,29 +17,41 @@
 @section('styles')
     <style>
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both; }
+        .animate-fade-up {
+            animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
     </style>
 @endsection
 
 @section('content')
     <section class="hero-gradient overflow-hidden py-16 md:py-20">
         <div class="relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-            <div class="animate-fade-up inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white/70">
+            <div
+                class="animate-fade-up inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white/70">
                 <span class="text-[#facc15]">Explorer</span>
                 <span class="h-1 w-1 rounded-full bg-[#facc15]"></span>
                 <span>Pasar Desa Indramayu</span>
             </div>
 
-            <h1 class="animate-fade-up mt-6 font-black leading-[1.05] tracking-tight text-white" style="font-size: clamp(2.2rem, 6vw, 4rem);">
+            <h1 class="animate-fade-up mt-6 font-black leading-[1.05] tracking-tight text-white"
+                style="font-size: clamp(2.2rem, 6vw, 4rem);">
                 Semua <span class="text-[#facc15]">pasar</span> dalam satu tampilan yang bisa diatur.
             </h1>
 
             <p class="animate-fade-up mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
-                Filter hari operasional, sempitkan area, lalu ubah ke mode tabel saat Anda butuh membaca banyak data sekaligus.
+                Filter hari operasional, sempitkan area, lalu ubah ke mode tabel saat Anda butuh membaca banyak data
+                sekaligus.
             </p>
 
             <div class="animate-fade-up search-bar-wrapper mt-8 px-2 sm:px-0">
@@ -50,13 +63,8 @@
                     @endforeach
                     <div class="relative flex items-center">
                         <i class="fas fa-search search-icon" aria-hidden="true"></i>
-                        <input
-                            type="text"
-                            name="search"
-                            value="{{ request('search') }}"
-                            class="search-bar"
-                            placeholder="Cari nama pasar, alamat, atau deskripsi..."
-                            autocomplete="off"
+                        <input type="text" name="search" value="{{ request('search') }}" class="search-bar"
+                            placeholder="Cari nama pasar, alamat, atau deskripsi..." autocomplete="off"
                             aria-label="Cari pasar">
                         <button type="submit" class="search-btn">
                             <span class="hidden sm:inline">Cari</span>
@@ -106,7 +114,8 @@
                             <select id="kecamatan" name="kecamatan" class="form-select-modern">
                                 <option value="">Semua Kecamatan</option>
                                 @foreach ($districts as $district)
-                                    <option value="{{ $district }}" @selected($selectedDistrict === $district)>{{ $district }}</option>
+                                    <option value="{{ $district }}" @selected($selectedDistrict === $district)>{{ $district }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -133,7 +142,8 @@
             </aside>
 
             <div class="space-y-6">
-                <div class="flex flex-col gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+                <div
+                    class="flex flex-col gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
                     <div>
                         <div class="section-eyebrow mb-2"><span>Hasil</span></div>
                         <h2 class="text-2xl font-black text-[#0f172a]">
@@ -190,6 +200,7 @@
                                         <th>Fasilitas</th>
                                         <th>Status</th>
                                         <th>Aksi</th>
+                                        <th>Rute</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -198,33 +209,39 @@
                                             <td>
                                                 <div class="font-bold text-[#0f172a]">{{ $market->nama_pasar }}</div>
                                                 @if ($market->district_name)
-                                                    <div class="text-xs uppercase tracking-[0.2em] text-slate-400">{{ $market->district_name }}</div>
+                                                    <div class="text-xs uppercase tracking-[0.2em] text-slate-400">
+                                                        {{ $market->district_name }}</div>
                                                 @endif
                                             </td>
                                             <td>{{ $market->hari_pasaran }}</td>
                                             <td>{{ $market->jam_operasional ?: 'Belum ada' }}</td>
-                                            <td class="max-w-[280px] text-sm leading-relaxed text-slate-500">{{ $market->alamat_lengkap }}</td>
+                                            <td class="max-w-[280px] text-sm leading-relaxed text-slate-500">
+                                                {{ $market->alamat_lengkap }}</td>
                                             <td>{{ $market->fasilitas->count() }}</td>
                                             <td>
-                                                <span class="{{ $market->is_open_today ? 'status-badge-open' : 'status-badge-closed' }}">
+                                                <span
+                                                    class="{{ $market->is_open_today ? 'status-badge-open' : 'status-badge-closed' }}">
                                                     <span class="status-dot"></span>
                                                     {{ $market->is_open_today ? 'Buka Hari Ini' : 'Hari Lain' }}
                                                 </span>
                                             </td>
                                             <td>
                                                 <div class="flex flex-wrap gap-2">
-                                                    <a href="{{ route('pasar.show', $market->id) }}" class="btn-primary text-xs px-3 py-2">Detail</a>
-    
+                                                    <a href="{{ route('pasar.show', $market->id) }}"
+                                                        class="btn-primary text-xs px-3 py-2">Detail</a>
+
                                                 </div>
                                             </td>
-                                        <td>    
-                                             <div>
-                                                  @if ($market->maps_url)
-                                                        <a href="{{ $market->maps_url }}" target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs px-3 py-2">Rute</a>
+                                            <td>
+                                                <div>
+                                                    @if ($market->maps_url)
+                                                        <a href="{{ $market->maps_url }}" target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            class="btn-secondary text-xs px-3 py-2">Rute</a>
                                                     @endif
-                                             </div>
+                                                </div>
 
-                                        </td>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
