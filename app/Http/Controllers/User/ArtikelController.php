@@ -25,10 +25,11 @@ class ArtikelController extends Controller
                 });
             })
             ->orderByDesc('tanggal_rilis')
-            ->get()
-            ->each(function (Artikel $article) {
+            ->paginate(6)
+            ->through(function (Artikel $article) {
                 $article->reading_time = max(1, (int) ceil(str_word_count(strip_tags($article->isi_konten ?? '')) / 180));
                 $article->excerpt = Str::limit(strip_tags($article->isi_konten ?? ''), 160);
+                return $article;
             });
 
         return view('user.artikel.index', compact('artikel'));
