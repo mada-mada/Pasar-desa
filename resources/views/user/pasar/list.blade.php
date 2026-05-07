@@ -1,7 +1,8 @@
 @extends('layouts.user')
 
 @section('title', 'Daftar Pasar Desa - Pasar Desa Indramayu')
-@section('meta_description', 'Jelajahi seluruh pasar desa di Indramayu dengan filter hari buka, kecamatan, mode grid
+@section('meta_description',
+    'Jelajahi seluruh pasar desa di Indramayu dengan filter hari buka, kecamatan, mode grid
     atau tabel, dan pengurutan cepat.')
 
 @section('context_bar')
@@ -121,7 +122,7 @@
                         </div>
                     @endif
 
-                    <div class="filter-panel__section">
+                    <div class="filter-panel__section js-scroll-fade-up">
                         <label for="sort" class="filter-label">Urutkan</label>
                         <select id="sort" name="sort" class="form-select-modern">
                             <option value="nama_asc" @selected($sort === 'nama_asc')>Nama A-Z</option>
@@ -264,4 +265,30 @@
             </div>
         </div>
     </section>
+@endsection
+
+@section('scripts')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fadeUpElements = document.querySelectorAll('.js-scroll-fade-up');
+            if (fadeUpElements.length) {
+                const fadeObserver = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.remove('opacity-0');
+                            entry.target.classList.add('animate-fade-up');
+                            fadeObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.20
+                });
+
+                fadeUpElements.forEach(function(el) {
+                    fadeObserver.observe(el);
+                });
+            }
+        });
+    </script>
 @endsection

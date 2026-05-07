@@ -1,4 +1,4 @@
-<article class="pasar-card group">
+<article class="pasar-card group opacity-0 js-scroll-fade-up">
     <div class="card-img-wrapper">
         @if ($market->foto_pasar_url)
             <img src="{{ $market->foto_pasar_url }}" alt="{{ $market->nama_pasar }}" loading="lazy">
