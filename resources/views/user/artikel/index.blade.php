@@ -5,41 +5,7 @@
     'Kumpulan artikel pasar desa Indramayu dengan pencarian cepat, tampilan visual yang
     konsisten, dan ringkasan waktu baca.')
 
-@section('styles')
-    <style>
-        .article-grid-container {
-            display: flex;
-            flex-direction: column-reverse;
-            /* News on top for mobile */
-            gap: 2.5rem;
-        }
 
-        .article-content-area {
-            width: 100%;
-        }
-
-        .article-sidebar-area {
-            width: 100%;
-        }
-
-        @media (min-width: 1024px) {
-            .article-grid-container {
-                flex-direction: row;
-                /* Content left, sidebar right for desktop */
-                display: grid;
-                grid-template-columns: repeat(12, minmax(0, 1fr));
-            }
-
-            .article-content-area {
-                grid-column: span 8 / span 8;
-            }
-
-            .article-sidebar-area {
-                grid-column: span 4 / span 4;
-            }
-        }
-    </style>
-@endsection
 
 @section('context_bar')
     <div class="context-bar">
@@ -51,27 +17,55 @@
     </div>
 @endsection
 
+@section('styles')
+    <style>
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        .animate-fade-up-delay-1 {
+            animation-delay: 0.12s;
+        }
+
+        .animate-fade-up-delay-2 {
+            animation-delay: 0.24s;
+        }
+    </style>
+@endsection
+
 @section('content')
     <section class="hero-gradient overflow-hidden py-16 md:py-20">
         <div class="relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
             <div
-                class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white/70">
+                class="animate-fade-up inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white/70">
                 <span class="text-[#facc15]">Redaksi Pasar Desa</span>
                 <span class="h-1 w-1 rounded-full bg-[#facc15]"></span>
                 <span>Artikel & Wawasan</span>
             </div>
 
-            <h1 class="mt-6 font-black leading-[1.05] tracking-tight text-white"
+            <h1 class="animate-fade-up animate-fade-up-delay-1 mt-6 font-black leading-[1.05] tracking-tight text-white"
                 style="font-size: clamp(2.2rem, 6vw, 4rem);">
                 Artikel yang lebih <span class="text-[#facc15]">mudah dicari</span> dan nyaman dibaca.
             </h1>
 
-            <p class="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
+            <p class="animate-fade-up animate-fade-up-delay-2 mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
                 Ikuti perkembangan pasar desa, kebijakan baru, dan cerita lapangan dengan pencarian cepat dan kartu artikel
                 yang lebih konsisten.
             </p>
 
-            <div class="search-bar-wrapper mt-8 px-2 sm:px-0">
+            <div class="animate-fade-up animate-fade-up-delay-2 search-bar-wrapper mt-8 px-2 sm:px-0">
                 <form action="{{ route('artikel.index') }}" method="GET" role="search">
                     <div class="relative flex items-center">
                         <i class="fas fa-search search-icon" aria-hidden="true"></i>
@@ -87,7 +81,7 @@
         </div>
     </section>
 
-    <section class="bg-[#f8f9fa] py-12 md:py-16">
+    <section class="bg-[#f8f9fa] py-12 md:py-16 opacity-0 js-scroll-fade-up">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             @if ($artikel->isEmpty())
                 <div class="empty-state rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
@@ -101,9 +95,9 @@
                         Artikel</a>
                 </div>
             @else
-                <div class="article-grid-container">
+                <div class="grid grid-cols-1 items-start gap-8 md:grid-cols-3 lg:grid-cols-12">
                     {{-- Main Content Side --}}
-                    <div class="article-content-area">
+                    <div class="md:col-span-2 lg:col-span-8">
                         @if (request('search'))
                             <div
                                 class="mb-10 flex items-center justify-between gap-4 border-l-4 border-blue-600 bg-white p-6 rounded-r-xl shadow-sm">
@@ -120,57 +114,7 @@
 
                         <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 mt-6 mb-6">
                             @foreach ($artikel as $art)
-                                <article
-                                    class="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-900/5">
-                                    {{-- Visual Header: Forced Normalization --}}
-                                    <div class="relative w-full overflow-hidden bg-slate-100" style="height: 220px;">
-                                        <a href="{{ route('artikel.show', $art->id) }}" class="block h-full w-full">
-                                            @if ($art->gambar_sampul_url)
-                                                <img src="{{ $art->gambar_sampul_url }}" alt="{{ $art->judul_artikel }}"
-                                                    loading="lazy"
-                                                    class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110">
-                                            @else
-                                                <div class="flex h-full w-full items-center justify-center bg-slate-100">
-                                                    <i class="fas fa-image text-4xl text-slate-300"></i>
-                                                </div>
-                                            @endif
-
-                                            <div class="absolute left-5 top-5">
-                                                <span
-                                                    class="rounded-full bg-blue-600/90 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-lg backdrop-blur-sm">
-                                                    Warta Desa
-                                                </span>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    {{-- Content Body --}}
-                                    <div class="flex flex-1 flex-col p-8">
-                                        <div
-                                            class="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                            <i class="far fa-calendar-alt text-blue-500"></i>
-                                            {{ $art->tanggal_rilis->translatedFormat('d F Y') }}
-                                        </div>
-
-                                        <a href="{{ route('artikel.show', $art->id) }}" class="mb-4 block">
-                                            <h2
-                                                class="line-clamp-2 text-xl font-extrabold leading-tight text-slate-900 transition-colors group-hover:text-blue-600">
-                                                {{ $art->judul_artikel }}
-                                            </h2>
-                                        </a>
-
-                                        <p class="mb-8 line-clamp-3 text-sm leading-relaxed text-slate-600">
-                                            {{ $art->excerpt ?? Str::limit(strip_tags($art->isi_konten), 140) }}
-                                        </p>
-
-                                        <div class="mt-auto border-t border-slate-100 pt-6">
-                                            <a href="{{ route('artikel.show', $art->id) }}"
-                                                class="inline-flex items-center gap-3 text-sm font-black text-blue-600 transition-all hover:gap-5 hover:text-blue-700">
-                                                Baca Selengkapnya <i class="fas fa-arrow-right text-[10px]"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </article>
+                                @include('user.artikel.partials.card')
                             @endforeach
                         </div>
 
@@ -180,64 +124,51 @@
                     </div>
 
                     {{-- Sidebar Side --}}
-                    <aside class="article-sidebar-area mt-6 mb-6">
+                    <aside class="md:col-span-1 lg:col-span-4 mt-6">
                         @php
-                            $beritaTerbaru = \App\Models\Artikel::orderByDesc('tanggal_rilis')->take(3)->get();
+                            $beritaTerbaru = \App\Models\Artikel::orderByDesc('tanggal_rilis')->take(5)->get();
                         @endphp
 
-                        <div
-                            class="sticky top-24 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow shadow-slate-100/30">
-                            {{-- High-Highlight Header --}}
-                            <div class="border-b border-slate-100 bg-slate-50/50 p-6">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-black tracking-tight text-slate-900">Berita Terbaru</h3>
-                                </div>
+                        <div class="md:sticky md:top-28 rounded-xl border border-slate-200 bg-white shadow-sm mb-8 md:mb-0">
+                            {{-- Header --}}
+                            <div class="border-b border-slate-100 px-6 py-5 mt-2 mb-3">
+                                <h3 class="text-[17px] font-bold text-slate-800">Berita Terbaru</h3>
                             </div>
 
-                            <div class="flex flex-col p-3">
+                            {{-- Vertical List --}}
+                            <div class="flex flex-col gap-3 p-4">
                                 @foreach ($beritaTerbaru as $index => $terbaru)
                                     <a href="{{ route('artikel.show', $terbaru->id) }}"
-                                        class="group flex items-start gap-4 rounded-xl p-4 transition-all duration-300 hover:bg-blue-50/50">
-                                        <div class="relative shrink-0">
-                                            <div class="overflow-hidden rounded-xl bg-slate-100 shadow-sm"
-                                                style="width: 72px; height: 72px;">
+                                        class="group flex items-start gap-4 rounded-xl border border-transparent p-3 transition-all hover:border-slate-100 hover:bg-slate-50 hover:shadow-sm">
+                                        {{-- Thumbnail --}}
+                                        <div class="shrink-0 pt-0.5">
+                                            <div
+                                                class="overflow-hidden rounded bg-slate-100 w-16 h-12 shadow-sm border border-slate-100/50">
                                                 @if ($terbaru->gambar_sampul_url)
                                                     <img src="{{ $terbaru->gambar_sampul_url }}"
                                                         alt="{{ $terbaru->judul_artikel }}"
-                                                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
                                                 @else
                                                     <div class="flex h-full w-full items-center justify-center">
-                                                        <i class="fas fa-image text-slate-300 text-xl"></i>
+                                                        <i class="fas fa-image text-slate-300 text-xs"></i>
                                                     </div>
                                                 @endif
                                             </div>
-                                            @if ($index === 0)
-                                                <div
-                                                    class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white shadow-xl ring-4 ring-white">
-                                                    1
-                                                </div>
-                                            @endif
                                         </div>
-                                        <div class="flex flex-col pt-1">
+
+                                        {{-- Text --}}
+                                        <div class="flex-1 min-w-0">
                                             <h4
-                                                class="mb-1.5 line-clamp-2 text-sm font-bold leading-snug text-slate-800 transition-colors group-hover:text-blue-600">
+                                                class="line-clamp-2 text-[13px] font-medium leading-snug text-slate-800 transition-colors group-hover:text-blue-600">
                                                 {{ $terbaru->judul_artikel }}
                                             </h4>
-                                            <div
-                                                class="flex items-center gap-2 text-[10px] font-bold uppercase text-slate-400">
-                                                <i class="far fa-clock text-blue-400"></i>
-                                                {{ $terbaru->tanggal_rilis->translatedFormat('d M Y') }}
+                                            <div class="mt-1 flex items-center gap-1 text-[11px] text-slate-500">
+                                                <i class="far fa-clock"></i>
+                                                {{ $terbaru->tanggal_rilis->translatedFormat('d F Y') }}
                                             </div>
                                         </div>
                                     </a>
                                 @endforeach
-                            </div>
-
-                            <div class="bg-slate-50/50 p-6">
-                                <a href="{{ route('artikel.index') }}"
-                                    class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-4 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-200">
-                                    Eksplorasi Semua <i class="fas fa-chevron-right text-[10px]"></i>
-                                </a>
                             </div>
                         </div>
                     </aside>
@@ -245,4 +176,30 @@
             @endif
         </div>
     </section>
+@endsection
+
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scroll Animation Observer for elements that should fade up
+            const fadeUpElements = document.querySelectorAll('.js-scroll-fade-up');
+            if (fadeUpElements.length) {
+                const fadeObserver = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.remove('opacity-0'); 
+                            entry.target.classList.add('animate-fade-up');
+                            fadeObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.15 
+                });
+
+                fadeUpElements.forEach(function(el) {
+                    fadeObserver.observe(el);
+                });
+            }
+        });
+    </script>
 @endsection

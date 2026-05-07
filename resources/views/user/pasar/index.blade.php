@@ -110,7 +110,7 @@
                     <span class="text-sm text-white/45">Pilih hari operasional untuk menyaring daftar di bawah.</span>
                 </div>
 
-                <div class="mt-7 flex snap-x gap-3 overflow-x-auto pb-2 sm:justify-center">
+                <div class="mt-7 flex snap-x gap-3 overflow-x-auto pt-3 pb-3 sm:justify-center">
                     <a href="{{ route('pasar.index', array_filter(['search' => request('search')])) }}"
                         class="filter-chip {{ !$selectedDay ? 'filter-chip--active' : '' }}">
                         Semua Hari
@@ -182,7 +182,7 @@
         </div>
     </section>
 
-    <section class="section-anchor mx-auto max-w-7xl px-4 pb-6 pt-2 sm:px-6 lg:px-8">
+    <section class="section-anchor mx-auto max-w-7xl px-4 pb-6 pt-2 sm:px-6 lg:px-8 opacity-0 js-scroll-fade-up">
         <div class="list-shell">
             <div class="flex items-end justify-between gap-4">
                 <div>
@@ -225,7 +225,7 @@
     </section>
 
     @if ($artikel->isNotEmpty())
-        <section class="mt-8 border-t border-slate-200 bg-[#f8fafc] py-14">
+        <section class="mt-8 border-t border-slate-200 bg-[#f8fafc] py-14 js-scroll-fade-up">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-8 flex items-end justify-between gap-4">
                     <div>
@@ -404,6 +404,26 @@
 
                 counters.forEach(function(counter) {
                     observer.observe(counter);
+                });
+            }
+
+            // Scroll Animation Observer for elements that should fade up
+            const fadeUpElements = document.querySelectorAll('.js-scroll-fade-up');
+            if (fadeUpElements.length) {
+                const fadeObserver = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.remove('opacity-0'); 
+                            entry.target.classList.add('animate-fade-up');
+                            fadeObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.20 
+                });
+
+                fadeUpElements.forEach(function(el) {
+                    fadeObserver.observe(el);
                 });
             }
         });
