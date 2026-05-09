@@ -20,10 +20,16 @@
     <div class="card-body">
         <div class="mb-3 flex items-start justify-between gap-3">
             <div>
-                <h3 class="card-title">
+                <h3 class="card-title flex items-center gap-2 flex-wrap">
                     <a href="{{ route('pasar.show', $market->id) }}" class="hover:text-[#2563eb] transition-colors">
                         {{ $market->nama_pasar }}
                     </a>
+                    @if($market->rata_rata_rating > 0)
+                        <span class="inline-flex items-center gap-1 rounded bg-[#fef08a] px-1.5 py-0.5 text-[11px] font-bold text-[#854d0e]">
+                            <i class="fas fa-star text-[10px]"></i> {{ number_format($market->rata_rata_rating, 1) }}
+                            <span class="font-medium text-[#a16207]">({{ $market->total_ulasan }})</span>
+                        </span>
+                    @endif
                 </h3>
                 @if ($market->district_name)
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $market->district_name }}</p>

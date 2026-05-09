@@ -77,6 +77,12 @@
                         <span>Kelola Admin</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.ulasan.index') }}" class="flex items-center px-6 py-3 hover:bg-gray-800 transition-colors border-l-4 {{ request()->routeIs('admin.ulasan.*') ? 'border-gold bg-gray-800' : 'border-transparent' }}">
+                        <i class="fas fa-comments w-6 text-gold"></i>
+                        <span>Moderasi Ulasan</span>
+                    </a>
+                </li>
             </ul>
         </nav>
         <div class="p-4 border-t border-gray-800">

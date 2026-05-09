@@ -127,6 +127,13 @@
             },
             "image": @json($artikel->gambar_sampul_url),
             "description": @json(Str::limit(strip_tags($artikel->isi_konten), 155))
+            @if($artikel->total_ulasan > 0)
+            ,"aggregateRating": {
+                "@@type": "AggregateRating",
+                "ratingValue": "{{ number_format($artikel->rata_rata_rating, 1) }}",
+                "reviewCount": "{{ $artikel->total_ulasan }}"
+            }
+            @endif
         }
     </script>
 @endsection

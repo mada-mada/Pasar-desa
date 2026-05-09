@@ -123,9 +123,12 @@ class PasarController extends Controller
         $pasar->district_name = $this->extractDistrict($pasar->alamat_lengkap);
         $pasar->maps_url = $this->mapsUrl($pasar);
 
+        $ulasans = $pasar->ulasans()->where('is_approved', true)->latest()->paginate(5);
+
         return view('user.pasar.show', [
             'pasar' => $pasar,
             'todayName' => $today,
+            'ulasans' => $ulasans,
         ]);
     }
 
