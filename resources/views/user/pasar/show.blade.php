@@ -145,58 +145,6 @@
                     @endif
                 </div>
 
-                <!-- Section Ulasan -->
-                <div id="ulasan" class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-                    <div class="flex flex-wrap items-center justify-between mb-5 gap-4">
-                        <div>
-                            <div class="section-eyebrow"><span>Ulasan</span></div>
-                            <h2 class="text-2xl font-black text-[#0f172a]">Apa kata masyarakat</h2>
-                        </div>
-                        <button id="btn-tulis-ulasan" class="btn-primary" style="display: none;">
-                            <i class="fas fa-pencil-alt"></i> Tulis Ulasan
-                        </button>
-                    </div>
-
-                    <!-- Review Stats -->
-                    <div class="mb-6 flex items-center gap-4">
-                        <div class="text-4xl font-black text-[#0f172a]">{{ number_format($pasar->rata_rata_rating, 1) }}</div>
-                        <div>
-                            <div class="text-[#facc15] text-lg">
-                                @for($i = 1; $i <= 5; $i++)
-                                    <i class="{{ $i <= round($pasar->rata_rata_rating) ? 'fas' : 'far' }} fa-star"></i>
-                                @endfor
-                            </div>
-                            <div class="text-sm text-slate-500">Dari {{ $pasar->total_ulasan }} ulasan</div>
-                        </div>
-                    </div>
-
-                    <!-- Review List -->
-                    @if($ulasans->isEmpty())
-                        <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-slate-500">
-                            Belum ada ulasan untuk pasar ini. Jadilah yang pertama!
-                        </p>
-                    @else
-                        <div class="space-y-4">
-                            @foreach($ulasans as $ulasan)
-                                <div class="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <strong class="text-[#0f172a]">{{ $ulasan->nama_pengunjung }}</strong>
-                                        <div class="text-[#facc15] text-sm">
-                                            @for($i = 1; $i <= 5; $i++)
-                                                <i class="{{ $i <= $ulasan->rating ? 'fas' : 'far' }} fa-star"></i>
-                                            @endfor
-                                        </div>
-                                    </div>
-                                    <p class="text-sm text-slate-600">{{ $ulasan->komentar }}</p>
-                                    <div class="mt-2 text-xs text-slate-400">{{ $ulasan->created_at->diffForHumans() }}</div>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="mt-6">
-                            {{ $ulasans->links('pagination::tailwind') }}
-                        </div>
-                    @endif
-                </div>
             </div>
 
             <aside class="space-y-6">
@@ -245,6 +193,56 @@
                             Copy Link
                         </button>
                     </div>
+                </div>
+
+                <div id="ulasan" class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+                    <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <div class="section-eyebrow"><span>Ulasan</span></div>
+                            <h2 class="text-2xl font-black text-[#0f172a]">Apa kata masyarakat</h2>
+                        </div>
+                        <button id="btn-tulis-ulasan" class="btn-primary" style="display: none;">
+                            <i class="fas fa-pencil-alt"></i> Tulis Ulasan
+                        </button>
+                    </div>
+
+                    <div class="mb-6 flex items-center gap-4">
+                        <div class="text-4xl font-black text-[#0f172a]">{{ number_format($pasar->rata_rata_rating, 1) }}</div>
+                        <div>
+                            <div class="text-lg text-[#facc15]">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="{{ $i <= round($pasar->rata_rata_rating) ? 'fas' : 'far' }} fa-star"></i>
+                                @endfor
+                            </div>
+                            <div class="text-sm text-slate-500">Dari {{ $pasar->total_ulasan }} ulasan</div>
+                        </div>
+                    </div>
+
+                    @if($ulasans->isEmpty())
+                        <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-slate-500">
+                            Belum ada ulasan untuk pasar ini. Jadilah yang pertama!
+                        </p>
+                    @else
+                        <div class="space-y-4">
+                            @foreach($ulasans as $ulasan)
+                                <div class="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
+                                    <div class="mb-2 flex items-center justify-between">
+                                        <strong class="text-[#0f172a]">{{ $ulasan->nama_pengunjung }}</strong>
+                                        <div class="text-sm text-[#facc15]">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <i class="{{ $i <= $ulasan->rating ? 'fas' : 'far' }} fa-star"></i>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-slate-600">{{ $ulasan->komentar }}</p>
+                                    <div class="mt-2 text-xs text-slate-400">{{ $ulasan->created_at->diffForHumans() }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="mt-6">
+                            {{ $ulasans->links('pagination::tailwind') }}
+                        </div>
+                    @endif
                 </div>
             </aside>
         </div>
