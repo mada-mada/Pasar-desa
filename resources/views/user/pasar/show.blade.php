@@ -144,6 +144,59 @@
                         </div>
                     @endif
                 </div>
+
+                <!-- Section Ulasan -->
+                <div id="ulasan" class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                    <div class="flex flex-wrap items-center justify-between mb-5 gap-4">
+                        <div>
+                            <div class="section-eyebrow"><span>Ulasan</span></div>
+                            <h2 class="text-2xl font-black text-[#0f172a]">Apa kata masyarakat</h2>
+                        </div>
+                        <button id="btn-tulis-ulasan" class="btn-primary" style="display: none;">
+                            <i class="fas fa-pencil-alt"></i> Tulis Ulasan
+                        </button>
+                    </div>
+
+                    <!-- Review Stats -->
+                    <div class="mb-6 flex items-center gap-4">
+                        <div class="text-4xl font-black text-[#0f172a]">{{ number_format($pasar->rata_rata_rating, 1) }}</div>
+                        <div>
+                            <div class="text-[#facc15] text-lg">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="{{ $i <= round($pasar->rata_rata_rating) ? 'fas' : 'far' }} fa-star"></i>
+                                @endfor
+                            </div>
+                            <div class="text-sm text-slate-500">Dari {{ $pasar->total_ulasan }} ulasan</div>
+                        </div>
+                    </div>
+
+                    <!-- Review List -->
+                    @if($ulasans->isEmpty())
+                        <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-slate-500">
+                            Belum ada ulasan untuk pasar ini. Jadilah yang pertama!
+                        </p>
+                    @else
+                        <div class="space-y-4">
+                            @foreach($ulasans as $ulasan)
+                                <div class="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <strong class="text-[#0f172a]">{{ $ulasan->nama_pengunjung }}</strong>
+                                        <div class="text-[#facc15] text-sm">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <i class="{{ $i <= $ulasan->rating ? 'fas' : 'far' }} fa-star"></i>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-slate-600">{{ $ulasan->komentar }}</p>
+                                    <div class="mt-2 text-xs text-slate-400">{{ $ulasan->created_at->diffForHumans() }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="mt-6">
+                            {{ $ulasans->links('pagination::tailwind') }}
+                        </div>
+                    @endif
+                </div>
             </div>
 
             <aside class="space-y-6">
@@ -197,6 +250,52 @@
         </div>
     </section>
 
+    <!-- Modal Ulasan -->
+    <div id="modal-ulasan" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300 px-4">
+        <div class="w-full max-w-lg rounded-[1.75rem] bg-white p-6 shadow-xl md:p-8 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto" id="modal-ulasan-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-[#0f172a]">Tulis Ulasan Anda</h3>
+                <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="form-ulasan">
+                @csrf
+                <input type="hidden" name="ulasanable_id" value="{{ $pasar->id }}">
+                <input type="hidden" name="ulasanable_type" value="App\Models\PasarDesa">
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-[#0f172a] mb-2">Rating</label>
+                    <div class="flex gap-2 text-2xl text-slate-300 cursor-pointer" id="star-rating">
+                        <i class="fas fa-star" data-rating="1"></i>
+                        <i class="fas fa-star" data-rating="2"></i>
+                        <i class="fas fa-star" data-rating="3"></i>
+                        <i class="fas fa-star" data-rating="4"></i>
+                        <i class="fas fa-star" data-rating="5"></i>
+                    </div>
+                    <input type="hidden" name="rating" id="input-rating" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-[#0f172a] mb-2">Nama Anda</label>
+                    <input type="text" name="nama_pengunjung" class="w-full rounded-xl border border-slate-300 p-3 focus:border-[#facc15] focus:outline-none focus:ring-1 focus:ring-[#facc15]" required maxlength="100">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-[#0f172a] mb-2">Kontak (Opsional)</label>
+                    <input type="text" name="kontak" class="w-full rounded-xl border border-slate-300 p-3 focus:border-[#facc15] focus:outline-none focus:ring-1 focus:ring-[#facc15]" maxlength="100" placeholder="No HP / Email untuk pelacakan spam">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-[#0f172a] mb-2">Komentar</label>
+                    <textarea name="komentar" rows="4" class="w-full rounded-xl border border-slate-300 p-3 focus:border-[#facc15] focus:outline-none focus:ring-1 focus:ring-[#facc15]" required maxlength="500"></textarea>
+                </div>
+
+                <button type="submit" class="w-full btn-primary flex justify-center items-center gap-2" id="btn-submit-ulasan">
+                    <i class="fas fa-paper-plane"></i> Kirim Ulasan
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script type="application/ld+json">
         {
             "@@context": "https://schema.org",
@@ -206,6 +305,13 @@
             "address": @json($pasar->alamat_lengkap),
             "openingHours": @json($pasar->jam_operasional),
             "image": @json($pasar->foto_pasar_url)
+            @if($pasar->total_ulasan > 0)
+            ,"aggregateRating": {
+                "@@type": "AggregateRating",
+                "ratingValue": "{{ number_format($pasar->rata_rata_rating, 1) }}",
+                "reviewCount": "{{ $pasar->total_ulasan }}"
+            }
+            @endif
         }
     </script>
 @endsection
@@ -262,6 +368,104 @@
                         copyButton.innerHTML = '<i class="fas fa-check"></i> Link Tersalin';
                     } catch (error) {
                         window.prompt('Salin tautan ini:', url);
+                    }
+                });
+            }
+
+            // Ulasan Modal Logic
+            const btnTulis = document.getElementById('btn-tulis-ulasan');
+            const modal = document.getElementById('modal-ulasan');
+            const modalContent = document.getElementById('modal-ulasan-content');
+            const btnClose = document.getElementById('btn-close-modal');
+            const form = document.getElementById('form-ulasan');
+            const starRating = document.getElementById('star-rating');
+            const inputRating = document.getElementById('input-rating');
+            
+            if (starRating) {
+                const stars = starRating.querySelectorAll('.fa-star');
+                const storageKey = 'has_reviewed_pasar_{{ $pasar->id }}';
+                
+                if (!localStorage.getItem(storageKey)) {
+                    btnTulis.style.display = 'inline-flex';
+                }
+
+                function openModal() {
+                    modal.classList.remove('hidden');
+                    void modal.offsetWidth;
+                    modal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95');
+                }
+
+                function closeModal() {
+                    modal.classList.add('opacity-0');
+                    modalContent.classList.add('scale-95');
+                    setTimeout(() => modal.classList.add('hidden'), 300);
+                }
+
+                btnTulis.addEventListener('click', openModal);
+                btnClose.addEventListener('click', closeModal);
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) closeModal();
+                });
+
+                stars.forEach(star => {
+                    star.addEventListener('click', function() {
+                        const rating = this.getAttribute('data-rating');
+                        inputRating.value = rating;
+                        stars.forEach(s => {
+                            if (s.getAttribute('data-rating') <= rating) {
+                                s.classList.remove('text-slate-300');
+                                s.classList.add('text-[#facc15]');
+                            } else {
+                                s.classList.remove('text-[#facc15]');
+                                s.classList.add('text-slate-300');
+                            }
+                        });
+                    });
+                });
+
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    if (!inputRating.value) {
+                        alert('Mohon berikan rating (bintang).');
+                        return;
+                    }
+
+                    const btnSubmit = document.getElementById('btn-submit-ulasan');
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+                    try {
+                        const formData = new FormData(form);
+                        const response = await fetch('{{ route('ulasan.store') }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            alert(data.message);
+                            localStorage.setItem(storageKey, 'true');
+                            btnTulis.style.display = 'none';
+                            closeModal();
+                        } else {
+                            if (data.errors) {
+                                alert(Object.values(data.errors).flat().join('\n'));
+                            } else {
+                                alert('Terjadi kesalahan. Silakan coba lagi.');
+                            }
+                        }
+                    } catch (error) {
+                        alert('Terjadi kesalahan jaringan.');
+                    } finally {
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Ulasan';
                     }
                 });
             }

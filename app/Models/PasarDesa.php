@@ -23,6 +23,8 @@ class PasarDesa extends Model
         'hari_pasaran',
         'jam_operasional',
         'foto_pasar',
+        'rata_rata_rating',
+        'total_ulasan',
     ];
 
     public function getFotoPasarUrlAttribute(): ?string
@@ -81,6 +83,12 @@ class PasarDesa extends Model
     public function lokasiGis()
     {
         return $this->hasOne(LokasiGis::class, 'id_pasar', 'id');
+    }
+
+    // Relasi Polymorphic: 1 Pasar memiliki banyak Ulasan
+    public function ulasans()
+    {
+        return $this->morphMany(Ulasan::class, 'ulasanable');
     }
 
     private function resolvePublicImageUrl(?string $path): ?string

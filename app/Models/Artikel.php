@@ -19,6 +19,8 @@ class Artikel extends Model
         'isi_konten',
         'tanggal_rilis',
         'gambar_sampul',
+        'rata_rata_rating',
+        'total_ulasan',
     ];
 
     // Memastikan format tanggal otomatis terbaca sebagai instance Carbon di Laravel
@@ -36,6 +38,12 @@ class Artikel extends Model
     {
         // Penamaan fungsi diubah menjadi 'penulis' agar lebih logis saat dipanggil (misal: $artikel->penulis->nama_lengkap)
         return $this->belongsTo(User::class, 'id_admin', 'id');
+    }
+
+    // Relasi Polymorphic: 1 Artikel memiliki banyak Ulasan
+    public function ulasans()
+    {
+        return $this->morphMany(Ulasan::class, 'ulasanable');
     }
 
     private function resolvePublicImageUrl(?string $path): ?string
