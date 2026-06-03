@@ -413,13 +413,13 @@
                 const fadeObserver = new IntersectionObserver(function(entries) {
                     entries.forEach(function(entry) {
                         if (entry.isIntersecting) {
-                            entry.target.classList.remove('opacity-0'); 
+                            entry.target.classList.remove('opacity-0');
                             entry.target.classList.add('animate-fade-up');
                             fadeObserver.unobserve(entry.target);
                         }
                     });
                 }, {
-                    threshold: 0.20 
+                    threshold: 0.20
                 });
 
                 fadeUpElements.forEach(function(el) {
